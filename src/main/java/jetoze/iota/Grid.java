@@ -232,8 +232,8 @@ public final class Grid {
 					if (vLine.length() == 1) {
 						continue;
 					}
-					Set<Card> hLineCandidates = this.horizontalLine.collectPossibleWildcardRepresentation();
-					Set<Card> vLineCandidates = vLine.collectPossibleWildcardRepresentation();
+					Set<Card> hLineCandidates = this.horizontalLine.collectPossibleWildcardRepresentations();
+					Set<Card> vLineCandidates = vLine.collectPossibleWildcardRepresentations();
 					Set<Card> candidates = hLineCandidates;
 					candidates.retainAll(vLineCandidates);
 					if (candidates.isEmpty()) {
@@ -245,8 +245,8 @@ public final class Grid {
 					if (hLine.length() == 1) {
 						continue;
 					}
-					Set<Card> vLineCandidates = this.verticalLine.collectPossibleWildcardRepresentation();
-					Set<Card> hLineCandidates = hLine.collectPossibleWildcardRepresentation();
+					Set<Card> vLineCandidates = this.verticalLine.collectPossibleWildcardRepresentations();
+					Set<Card> hLineCandidates = hLine.collectPossibleWildcardRepresentations();
 					Set<Card> candidates = vLineCandidates;
 					candidates.retainAll(hLineCandidates);
 					if (candidates.isEmpty()) {
@@ -361,9 +361,9 @@ public final class Grid {
 					.collect(Collectors.toList());
 		}
 		
-		public Set<Card> collectPossibleWildcardRepresentation() {
-			Set<Object> properties = matchType.collectPossibleWildcardProperties(getNonWildcards());
-			return Card.createPossibleCards(properties);
+		public Set<Card> collectPossibleWildcardRepresentations() {
+			List<Card> nonWildCards = getNonWildcards();
+			return matchType.collectPossibleWildcardRepresentations(nonWildCards);
 		}
 	}
 	
@@ -386,51 +386,6 @@ public final class Grid {
 		public Position getPosition() {
 			return position;
 		}
-	}
-	
-	
-	private static enum MatchType {
-
-		SAME {
-
-			@Override
-			public Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards) {
-				Set<Object> props = null;
-				for (Card c : nonWcCards) {
-					if (props == null) {
-						props = c.getMatchProperties();
-					} else {
-						props = c.match(props);
-					}
-				}
-				return props;
-			}
-		},
-		
-		DIFFERENT {
-
-			@Override
-			public Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards) {
-				Set<Object> props = Constants.collectAllCardProperties();
-				for (Card c : nonWcCards) {
-					props.removeAll(c.getMatchProperties());
-				}
-				return props;
-			}
-		},
-		
-		EITHER {
-
-			@Override
-			public Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards) {
-				// A line with at most one concrete card. All card properties are possible.
-				return Constants.collectAllCardProperties();
-			}
-
-		};
-		
-		public abstract Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards);
-		
 	}
 	
 }
