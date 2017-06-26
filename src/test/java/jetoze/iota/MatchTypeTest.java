@@ -1,6 +1,7 @@
 package jetoze.iota;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,6 +30,32 @@ public class MatchTypeTest {
 		}
 		Set<Card> actual = MatchType.SAME.collectPossibleWildcardRepresentations(nonWildcards);
 		assertEquals(expected, actual);
+		
+		nonWildcards = Arrays.asList(
+				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
+				Card.newCard(Color.BLUE, Shape.CIRCLE, 1));
+		// Expected result is any card that's blue, or has the facevalue 1, because 
+		// both those properties are common.
+		expected = new HashSet<>();
+		for (Color c : Color.values()) {
+			for (Shape s : Shape.values()) {
+				expected.add(Card.newCard(c, s, 1));
+			}
+		}
+		for (Shape s : Shape.values()) {
+			for (int fv = Constants.MIN_FACE_VALUE; fv <= Constants.MAX_FACE_VALUE; ++fv) {
+				expected.add(Card.newCard(Color.BLUE, s, fv));
+			}
+		}
+		actual = MatchType.SAME.collectPossibleWildcardRepresentations(nonWildcards);
+		assertEquals(expected, actual);
+
+		nonWildcards = Arrays.asList(
+				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
+				Card.newCard(Color.BLUE, Shape.CIRCLE, 1),
+				Card.newCard(Color.GREEN, Shape.CROSS, 2));
+		assertTrue(MatchType.SAME.collectPossibleWildcardRepresentations(nonWildcards).isEmpty());
+	
 	}
 
 }

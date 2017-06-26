@@ -170,19 +170,19 @@ public class GridTest {
 		//               |
 		//            [Y-Ci-1]
 		//               |
-		//            [R-Cr-2]
+		//            [R-Cr-4]
 		//               |
 		//            [B-Tr-3]
 		//
 		// The horizontal line mandates that the card must be [G-Tr-2]. The vertical line
-		// mandates that it must be [G-Sq-4]. This should not be allowed.
+		// mandates that it must be [G-Sq-2]. This should not be allowed.
 		Grid grid = new Grid();
 		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
 		grid.addCard(Card.wildcard(), 0, 1);
 		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2);
 		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 4), 0, 3);
 		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 1), 1, 1);
-		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1);
+		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 4), 2, 1);
 		assertFalse(grid.isCardAllowed(Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 3, 1));
 	}
 	
