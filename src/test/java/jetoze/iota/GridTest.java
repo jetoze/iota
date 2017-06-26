@@ -109,4 +109,23 @@ public class GridTest {
 		assertEquals(Sets.newHashSet(blueSquareOne, blueTriangleThree, yellowCircleTwo, greenTriangleFour), added);
 	}
 	
+	@Test
+	public void ensureWildcardCanBeUsedInTwoLines() {
+		// Build the following grid:
+		//
+		// [B-Sq-1] - [  WC  ] - [B - Ci - 4]
+		//               |
+		//            [Y-Cr-4]
+		//               |
+		//            [R-Cr-2]
+		//
+		// The wild card must be [B-Cr-AnyFaceValue] 
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addCard(Card.wildcard(), 0, 1);
+		grid.addCard(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 2);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CROSS, 4), 1, 1);
+		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1);
+	}
+	
 }

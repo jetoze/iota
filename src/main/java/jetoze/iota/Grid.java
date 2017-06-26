@@ -5,10 +5,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -48,43 +50,58 @@ public final class Grid {
 	private Line createHorizontalLine(Card newCard, Position p) {
 		Position start = findStartOfRow(p);
 		Position end = findEndOfRow(p);
-		return createLine(newCard, start, end, Position::rightOf);
+		return createLine(newCard, p, start, end, Position::rightOf);
 	}
 	
 	@Nullable
 	private Line createVerticalLine(Card newCard, Position p) {
 		Position start = findStartOfColumn(p);
 		Position end = findEndOfColumn(p);
-		return createLine(newCard, start, end, Position::below);
+		return createLine(newCard, p, start, end, Position::below);
 	}
 	
 	@Nullable
 	private Line createLine(Card newCard,
+							Position newCardPosition,
 						 	Position start, 
 						 	Position end, 
 						 	Function<Position, Position> nextGenerator) {
 		if (start.equals(end)) {
-			return Line.singleCard(newCard);
+			return Line.singleCard(newCard, newCardPosition);
 		}
-		List<Card> cards = new ArrayList<>();
+		List<LineItem> items = new ArrayList<>();
 		for (Position p = start; ; p = nextGenerator.apply(p)) {
 			Card card = grid.get(p.row, p.col);
 			if (card == null) {
 				card = newCard;
 			}
-			cards.add(card);
+			items.add(new LineItem(card, p));
 			if (p.equals(end)) {
 				break;
 			}
 		}
-		MatchType matchType = deduceMatchType(cards);
+		MatchType matchType = deduceMatchType(items.stream()
+				.map(LineItem::getCard)
+				.collect(Collectors.toList()));
 		return (matchType != null)
-				? new Line(cards, matchType)
+				? new Line(items, matchType)
 				: null;
 	}
 	
 	@Nullable
 	private static MatchType deduceMatchType(List<Card> line) {
+		// TODO: If a wildcard is part of two lines, it must represent the same card
+		// in both lines. How do we account for that here?
+		// One approach would be the following: When validating a wildcard, collect
+		// all the properties that the wildcard *can* have to make it a valid card
+		// at that position. Then, once both lines have been validated, make sure that
+		// the set of properties from the first validation and the set of properties
+		// from the second validation has a matching Color-Shape-Facevalue combination.
+		//
+		// Revision: collect all the *concrete* cards that the wildcard could represent.`
+		// Hmm, this will be tricky in the case where a line contains two wildcards. In that
+		// case we must generate all combinations that make both cards match. Oh dear.
+
 		if (line.size() < 2) {
 			return MatchType.EITHER;
 		} else if (line.size() > Constants.MAX_LINE_LENGTH) {
@@ -95,8 +112,13 @@ public final class Grid {
 			boolean allUnique = true;
 			for (Card card : line) {
 				if (matches == null) {
-					matches = card.getMatchProperties();
-					all = matches;
+					// The first card in the line. If the first card is a WC
+					// we move on to the next one, since a WC does not have any
+					// inherent properties itself.
+					if (!card.isWildcard()) {
+						matches = card.getMatchProperties();
+						all = new HashSet<>(matches);
+					}
 				} else {
 					matches = card.match(matches);
 					if (allUnique) {
@@ -110,13 +132,15 @@ public final class Grid {
 					all.addAll(card.getMatchProperties());
 				}
 			}
-			if (!matches.isEmpty()) {
+			if (matches == null) {
+				// This is the case of a line consisting of wildcards only.
+				return MatchType.EITHER;
+			} else if (!matches.isEmpty()) {
 				// All the cards share a common property
 				return MatchType.SAME;
 			} else if (allUnique) {
-				return line.stream().allMatch(Card::isWildcard) 
-						? MatchType.EITHER 
-						: MatchType.DIFFERENT;
+				// No matching property
+				return MatchType.DIFFERENT;
 			} else {
 				// No match
 				return null;
@@ -187,6 +211,20 @@ public final class Grid {
 				if (contains(position)) {
 					return false;
 				}
+				// TODO: Wildcard validation goes here. Pseudo-code:
+				// for each wc in hLine:
+				//   is wc also in vLine:
+				//     collect possible card properties from hLine
+				//     collect possible card properties from vLine
+				//     look for matching set of properties
+				// The collecting of possible card properties will use the MatchType
+				// to figure out which properties are allowed.
+				for (LineItem wcItem : horizontalLine.getWildcardItems()) {
+					if (verticalLine.contains(wcItem.getPosition())) {
+						// TODO: Implement this. But write the tests first ;-)
+					}
+				}
+				
 				// At least one of the lines must contain more than one card.
 				// (This ensures all cards are connected in the grid.)
 				return horizontalLine.length() > 1 || verticalLine.length() > 1;
@@ -260,29 +298,65 @@ public final class Grid {
 	
 	private static class Line {
 		
-		private final ImmutableList<Card> cards;
+		private final ImmutableList<LineItem> items;
 		
 		private final MatchType matchType;
 		
-		public Line(List<Card> cards, MatchType matchType) {
-			this.cards = ImmutableList.copyOf(cards);
+		public Line(List<LineItem> items, MatchType matchType) {
+			this.items = ImmutableList.copyOf(items);
 			this.matchType = matchType;
 		}
 		
-		public static Line singleCard(Card card) {
-			return new Line(ImmutableList.of(card), MatchType.EITHER);
+		public static Line singleCard(Card card, Position pos) {
+			return new Line(ImmutableList.of(new LineItem(card, pos)), MatchType.EITHER);
 		}
 		
 		public int length() {
-			return cards.size();
+			return items.size();
 		}
 		
-		public ImmutableList<Card> getCards() {
-			return cards;
+		public List<Card> getCards() {
+			return items.stream().map(LineItem::getCard).collect(Collectors.toList());
+		}
+		
+		public List<LineItem> getWildcardItems() {
+			return items.stream()
+					.filter(i -> i.getCard().isWildcard())
+					.collect(Collectors.toList());
+		}
+		
+		public boolean contains(Position pos) {
+			// TODO: Consider using some sort of map as storage, so that we can 
+			// do this as a lookup rather than iterate over the list. OTOH, the
+			// line will be at most 4 elements long, so it's not like this is
+			// a terrible performance overhead.
+			return items.stream()
+					.anyMatch(i -> i.getPosition().equals(pos));
 		}
 		
 		public MatchType getMatchType() {
 			return matchType;
+		}
+	}
+	
+	
+	private static class LineItem {
+		
+		private final Card card;
+		
+		private final Position position;
+
+		public LineItem(Card card, Position position) {
+			this.card = card;
+			this.position = position;
+		}
+
+		public Card getCard() {
+			return card;
+		}
+
+		public Position getPosition() {
+			return position;
 		}
 	}
 	
