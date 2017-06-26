@@ -126,6 +126,64 @@ public class GridTest {
 		grid.addCard(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 2);
 		grid.addCard(Card.newCard(Color.YELLOW, Shape.CROSS, 4), 1, 1);
 		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1);
+		
+		// Next, a case where one of the lines uses all unique properties
+		// Build the following grid:
+		//
+		// [B-Sq-1] - [  WC  ] - [Y-Ci-3]
+		//               |
+		//            [Y-Cr-4]
+		//               |
+		//            [R-Cr-2]
+		//
+		// The wild card must be [G/R-Cr-2/4] 
+		grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addCard(Card.wildcard(), 0, 1);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CROSS, 4), 1, 1);
+		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1);
+
+		// Next, a case where both lines uses all unique properties
+		// Build the following grid:
+		//
+		// [B-Sq-1] - [  WC  ] - [Y-Ci-3]
+		//               |
+		//            [Y-Ci-1]
+		//               |
+		//            [R-Cr-2]
+		//
+		// The wild card must be [G-Tr-1] 
+		grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addCard(Card.wildcard(), 0, 1);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 1), 1, 1);
+		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1);
+	}
+	
+	@Test
+	public void ensureWilcardCanBeUsedInTwoLinesOnlyIfItsTheSameCardInBothLines() {
+		// Build the following grid:
+		//
+		// [B-Sq-1] - [  WC  ] - [Y-Ci-3] - [R-Cr-4]
+		//               |
+		//            [Y-Ci-1]
+		//               |
+		//            [R-Cr-2]
+		//               |
+		//            [B-Tr-3]
+		//
+		// The horizontal line mandates that the card must be [G-Tr-2]. The vertical line
+		// mandates that it must be [G-Sq-4]. This should not be allowed.
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addCard(Card.wildcard(), 0, 1);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2);
+		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 4), 0, 3);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.CIRCLE, 1), 1, 1);
+		grid.addCard(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1);
+		assertFalse(grid.isCardAllowed(Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 3, 1));
 	}
 	
 }

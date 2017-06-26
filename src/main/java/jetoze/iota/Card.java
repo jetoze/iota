@@ -33,6 +33,30 @@ public abstract class Card {
 		return new ConcreteCard(color, shape, faceValue);
 	}
 	
+	public static Set<Card> createPossibleCards(Set<Object> properties) {
+		Set<Color> colors = new HashSet<>();
+		Set<Shape> shapes = new HashSet<>();
+		Set<Integer> faceValues = new HashSet<>();
+		for (Object o : properties) {
+			if (o instanceof Color) {
+				colors.add((Color) o);
+			} else if (o instanceof Shape) {
+				shapes.add((Shape) o);
+			} else if (o instanceof Integer) {
+				faceValues.add((Integer) o);
+			}
+		}
+		Set<Card> cards = new HashSet<>();
+		for (Color c : colors) {
+			for (Shape s : shapes) {
+				for (Integer fv : faceValues) {
+					cards.add(newCard(c, s, fv));
+				}
+			}
+		}
+		return cards;
+	}
+	
 	
 	private static final class ConcreteCard extends Card {
 

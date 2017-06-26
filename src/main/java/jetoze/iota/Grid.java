@@ -90,61 +90,60 @@ public final class Grid {
 	
 	@Nullable
 	private static MatchType deduceMatchType(List<Card> line) {
-		// TODO: If a wildcard is part of two lines, it must represent the same card
-		// in both lines. How do we account for that here?
-		// One approach would be the following: When validating a wildcard, collect
-		// all the properties that the wildcard *can* have to make it a valid card
-		// at that position. Then, once both lines have been validated, make sure that
-		// the set of properties from the first validation and the set of properties
-		// from the second validation has a matching Color-Shape-Facevalue combination.
-		//
-		// Revision: collect all the *concrete* cards that the wildcard could represent.`
-		// Hmm, this will be tricky in the case where a line contains two wildcards. In that
-		// case we must generate all combinations that make both cards match. Oh dear.
-
-		if (line.size() < 2) {
-			return MatchType.EITHER;
-		} else if (line.size() > Constants.MAX_LINE_LENGTH) {
+		// Three different match types:
+		// SAME == All cards must share the same property. Requires at least 
+		//   two non-wildcards in the line.
+		// DIFFERENT == No two cards can share a property. Requires at least 
+		//   two non-wildcards in the line.
+		// EITHER == We don't know yet. This will be the case if the line contains
+		//   at most one concrete card.
+		if (line.size() > Constants.MAX_LINE_LENGTH) {
+			// The line is too long.
 			return null;
-		} else {
-			Set<Object> matches = null;
-			Set<Object> all = null;
-			boolean allUnique = true;
-			for (Card card : line) {
-				if (matches == null) {
-					// The first card in the line. If the first card is a WC
-					// we move on to the next one, since a WC does not have any
-					// inherent properties itself.
-					if (!card.isWildcard()) {
-						matches = card.getMatchProperties();
-						all = new HashSet<>(matches);
-					}
-				} else {
-					matches = card.match(matches);
-					if (allUnique) {
-						Set<Object> cardProperties = card.getMatchProperties();
-						int expectedSizeOfAllProperties = all.size() + cardProperties.size();
-						all.addAll(cardProperties);
-						if (all.size() < expectedSizeOfAllProperties) {
-							allUnique = false;
-						}
-					}
-					all.addAll(card.getMatchProperties());
-				}
-			}
+		}
+		long numberOfConcreteCards = line.stream()
+				.filter(c -> !c.isWildcard())
+				.count();
+		if (numberOfConcreteCards <= 1) {
+			return MatchType.EITHER;
+		}
+		Set<Object> matches = null;
+		Set<Object> all = null;
+		boolean allUnique = true;
+		for (Card card : line) {
 			if (matches == null) {
-				// This is the case of a line consisting of wildcards only.
-				return MatchType.EITHER;
-			} else if (!matches.isEmpty()) {
-				// All the cards share a common property
-				return MatchType.SAME;
-			} else if (allUnique) {
-				// No matching property
-				return MatchType.DIFFERENT;
+				// The first card in the line. If the first card is a WC
+				// we move on to the next one, since a WC does not have any
+				// inherent properties itself.
+				if (!card.isWildcard()) {
+					matches = card.getMatchProperties();
+					all = new HashSet<>(matches);
+				}
 			} else {
-				// No match
-				return null;
+				matches = card.match(matches);
+				if (allUnique) {
+					Set<Object> cardProperties = card.getMatchProperties();
+					int expectedSizeOfAllProperties = all.size() + cardProperties.size();
+					all.addAll(cardProperties);
+					if (all.size() < expectedSizeOfAllProperties) {
+						allUnique = false;
+					}
+				}
+				all.addAll(card.getMatchProperties());
 			}
+		}
+		if (matches == null) {
+			// This is the case of a line consisting of wildcards only.
+			return MatchType.EITHER;
+		} else if (!matches.isEmpty()) {
+			// All the cards share a common property
+			return MatchType.SAME;
+		} else if (allUnique) {
+			// No matching property
+			return MatchType.DIFFERENT;
+		} else {
+			// No match
+			return null;
 		}
 	}
 	
@@ -211,23 +210,51 @@ public final class Grid {
 				if (contains(position)) {
 					return false;
 				}
-				// TODO: Wildcard validation goes here. Pseudo-code:
-				// for each wc in hLine:
-				//   is wc also in vLine:
-				//     collect possible card properties from hLine
+				if (horizontalLine.length() == 1 && verticalLine.length() == 1) {
+					// At least one of the lines must contain more than one card.
+					// (This ensures all cards are connected in the grid.)
+					return false;
+				}
+				// Wildcard validation - ensure that a wildcard that appears in two lines
+				// represent the same card in both lines. Pseudo-code:
+				// for each wc in this.hLine:
+				//   if wc also in a vLine (not necessarily this.vLine)
+				//     collect possible card properties from this.hLine
 				//     collect possible card properties from vLine
 				//     look for matching set of properties
-				// The collecting of possible card properties will use the MatchType
-				// to figure out which properties are allowed.
-				for (LineItem wcItem : horizontalLine.getWildcardItems()) {
-					if (verticalLine.contains(wcItem.getPosition())) {
-						// TODO: Implement this. But write the tests first ;-)
+				// for each wc in this.vLine:
+				//   if wc also in an hLine (not necessarily this.hLine)
+				//     collect possible card properties from this.vLine
+				//     collect possible card properties from hLine
+				//     look for matching set of properties
+				for (LineItem wcItem : this.horizontalLine.getWildcardItems()) {
+					Line vLine = createVerticalLine(wcItem.getCard(), wcItem.getPosition());
+					if (vLine.length() == 1) {
+						continue;
+					}
+					Set<Card> hLineCandidates = this.horizontalLine.collectPossibleWildcardRepresentation();
+					Set<Card> vLineCandidates = vLine.collectPossibleWildcardRepresentation();
+					Set<Card> candidates = hLineCandidates;
+					candidates.retainAll(vLineCandidates);
+					if (candidates.isEmpty()) {
+						return false;
 					}
 				}
-				
-				// At least one of the lines must contain more than one card.
-				// (This ensures all cards are connected in the grid.)
-				return horizontalLine.length() > 1 || verticalLine.length() > 1;
+				for (LineItem wcItem : this.verticalLine.getWildcardItems()) {
+					Line hLine = createHorizontalLine(wcItem.getCard(), wcItem.getPosition());
+					if (hLine.length() == 1) {
+						continue;
+					}
+					Set<Card> vLineCandidates = this.verticalLine.collectPossibleWildcardRepresentation();
+					Set<Card> hLineCandidates = hLine.collectPossibleWildcardRepresentation();
+					Set<Card> candidates = vLineCandidates;
+					candidates.retainAll(hLineCandidates);
+					if (candidates.isEmpty()) {
+						return false;
+					}
+				}
+				// Hooray, we have a valid line!
+				return true;
 			}
 		}
 		
@@ -316,7 +343,16 @@ public final class Grid {
 		}
 		
 		public List<Card> getCards() {
-			return items.stream().map(LineItem::getCard).collect(Collectors.toList());
+			return items.stream()
+					.map(LineItem::getCard)
+					.collect(Collectors.toList());
+		}
+		
+		public List<Card> getNonWildcards() {
+			return items.stream()
+					.map(LineItem::getCard)
+					.filter(c -> !c.isWildcard())
+					.collect(Collectors.toList());
 		}
 		
 		public List<LineItem> getWildcardItems() {
@@ -325,17 +361,9 @@ public final class Grid {
 					.collect(Collectors.toList());
 		}
 		
-		public boolean contains(Position pos) {
-			// TODO: Consider using some sort of map as storage, so that we can 
-			// do this as a lookup rather than iterate over the list. OTOH, the
-			// line will be at most 4 elements long, so it's not like this is
-			// a terrible performance overhead.
-			return items.stream()
-					.anyMatch(i -> i.getPosition().equals(pos));
-		}
-		
-		public MatchType getMatchType() {
-			return matchType;
+		public Set<Card> collectPossibleWildcardRepresentation() {
+			Set<Object> properties = matchType.collectPossibleWildcardProperties(getNonWildcards());
+			return Card.createPossibleCards(properties);
 		}
 	}
 	
@@ -363,11 +391,45 @@ public final class Grid {
 	
 	private static enum MatchType {
 
-		SAME,
+		SAME {
+
+			@Override
+			public Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards) {
+				Set<Object> props = null;
+				for (Card c : nonWcCards) {
+					if (props == null) {
+						props = c.getMatchProperties();
+					} else {
+						props = c.match(props);
+					}
+				}
+				return props;
+			}
+		},
 		
-		DIFFERENT,
+		DIFFERENT {
+
+			@Override
+			public Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards) {
+				Set<Object> props = Constants.collectAllCardProperties();
+				for (Card c : nonWcCards) {
+					props.removeAll(c.getMatchProperties());
+				}
+				return props;
+			}
+		},
 		
-		EITHER
+		EITHER {
+
+			@Override
+			public Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards) {
+				// A line with at most one concrete card. All card properties are possible.
+				return Constants.collectAllCardProperties();
+			}
+
+		};
+		
+		public abstract Set<Object> collectPossibleWildcardProperties(List<Card> nonWcCards);
 		
 	}
 	
