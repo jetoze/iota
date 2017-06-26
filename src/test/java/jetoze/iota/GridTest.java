@@ -1,0 +1,112 @@
+package jetoze.iota;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.Test;
+
+import com.google.common.collect.Sets;
+
+import jetoze.iota.Constants.Color;
+import jetoze.iota.Constants.Shape;
+
+public class GridTest {
+
+	@Test
+	public void ensureCardIsAllowedOnEmptyGrid() {
+		Grid grid = new Grid();
+		Card blueSquareOne = Card.newCard(Color.BLUE, Shape.SQUARE, 1);
+		assertTrue(grid.isCardAllowed(blueSquareOne, 0, 0));
+		assertFalse(grid.isCardAllowed(blueSquareOne, 1, 0));
+		assertFalse(grid.isCardAllowed(blueSquareOne, 0, 1));
+	}
+	
+	@Test
+	public void ensureTwoCardsCannotOccupyTheSameSpace() {
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		assertFalse(grid.isCardAllowed(Card.newCard(Color.GREEN, Shape.CROSS, 3), 0, 0));
+	}
+	
+	@Test
+	public void ensureAllCardsAreConnected() {
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		assertFalse(grid.isCardAllowed(Card.newCard(Color.GREEN, Shape.CROSS, 3), 2, 4));
+	}
+	
+	@Test
+	public void ensureSingleLinesOfMatchingCardsCanBeBuilt() {
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		// Horizontal line of blue cards
+		grid.addCard(Card.newCard(Color.BLUE, Shape.SQUARE, 1), 0, 1);
+		grid.addCard(Card.newCard(Color.BLUE, Shape.CROSS, 1), 0, 2);
+		grid.addCard(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 3);
+		// Vertical line of non-matching cards
+		grid.addCard(Card.newCard(Color.GREEN, Shape.CROSS, 2), 1, 0);
+		grid.addCard(Card.newCard(Color.RED, Shape.CIRCLE, 3), 2, 0);
+		grid.addCard(Card.newCard(Color.YELLOW, Shape.TRIANGLE, 4), 3, 0);
+	}
+	
+	@Test
+	public void ensureSingleLineCannotBeLongerThanMax() {
+		Grid grid = new Grid();
+		Card card = Card.newCard(Color.BLUE, Shape.SQUARE, 1);
+		grid.start(card);
+		for (int row = 1; row < Constants.MAX_LINE_LENGTH; ++row) {
+			grid.addCard(card, row, 0);
+		}
+		assertFalse(grid.isCardAllowed(card, Constants.MAX_LINE_LENGTH, 0));
+		try {
+			grid.addCard(card, Constants.MAX_LINE_LENGTH, 0);
+			fail();
+		} catch (Exception e) {
+			// expected
+		}
+		
+		// Now repeat for a row
+		for (int col = 1; col < Constants.MAX_LINE_LENGTH; ++col) {
+			grid.addCard(card, 0, col);
+		}
+		assertFalse(grid.isCardAllowed(card, 0, Constants.MAX_LINE_LENGTH));
+		try {
+			grid.addCard(card, 0, Constants.MAX_LINE_LENGTH);
+			fail();
+		} catch (Exception e) {
+			// expected
+		}
+	}
+	
+	@Test
+	public void ensureTwoWildcardIsValidLine() {
+		Grid grid = new Grid();
+		grid.start(Card.wildcard());
+		assertTrue(grid.isCardAllowed(Card.wildcard(), 0, 1));
+	}
+	
+	@Test
+	public void ensureFourCardsCanBePlacedInTwoRowsAndColumns() {
+		Grid grid = new Grid();
+		Card blueSquareOne = Card.newCard(Color.BLUE, Shape.SQUARE, 1);
+		Card blueTriangleThree = Card.newCard(Color.BLUE, Shape.TRIANGLE, 3);
+		Card yellowCircleTwo = Card.newCard(Color.YELLOW, Shape.CIRCLE, 2);
+		Card greenTriangleFour = Card.newCard(Color.GREEN, Shape.TRIANGLE, 4);
+		Set<Card> added = new HashSet<>();
+		// Row 1: blue
+		// Row 2: unique
+		// Column 1: unique
+		// Column 2: triangle
+		grid.start(blueSquareOne);
+		added.addAll(grid.addCard(blueTriangleThree, 0, 1));
+		added.addAll(grid.addCard(yellowCircleTwo, 1, 0));
+		added.addAll(grid.addCard(greenTriangleFour, 1, 1));
+		assertEquals(Sets.newHashSet(blueSquareOne, blueTriangleThree, yellowCircleTwo, greenTriangleFour), added);
+	}
+	
+}
