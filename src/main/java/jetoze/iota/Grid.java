@@ -348,13 +348,6 @@ public final class Grid {
 					.collect(Collectors.toList());
 		}
 		
-		public List<Card> getNonWildcards() {
-			return items.stream()
-					.map(LineItem::getCard)
-					.filter(c -> !c.isWildcard())
-					.collect(Collectors.toList());
-		}
-		
 		public List<LineItem> getWildcardItems() {
 			return items.stream()
 					.filter(i -> i.getCard().isWildcard())
@@ -362,8 +355,8 @@ public final class Grid {
 		}
 		
 		public Set<Card> collectPossibleWildcardRepresentations() {
-			List<Card> nonWildCards = getNonWildcards();
-			return matchType.collectPossibleWildcardRepresentations(nonWildCards);
+			List<Card> cards = getCards();
+			return matchType.collectNextCardCandidates(cards);
 		}
 	}
 	

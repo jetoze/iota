@@ -9,9 +9,14 @@ enum MatchType {
 	SAME {
 
 		@Override
-		public Set<Card> collectPossibleWildcardRepresentations(List<Card> nonWildcards) {
+		public Set<Card> collectNextCardCandidates(List<Card> line) {
+			// TODO: It should be possible to create commonProperties
+			// via a Collector.
 			Set<Object> commonProperties = null;
-			for (Card c : nonWildcards) {
+			for (Card c : line) {
+				if (c.isWildcard()) {
+					continue;
+				}
 				if (commonProperties == null) {
 					commonProperties = c.getMatchProperties();
 				} else {
@@ -31,11 +36,11 @@ enum MatchType {
 	DIFFERENT {
 
 		@Override
-		public Set<Card> collectPossibleWildcardRepresentations(List<Card> nonWildcards) {
+		public Set<Card> collectNextCardCandidates(List<Card> line) {
 			Set<Object> props = Constants.collectAllCardProperties();
-			for (Card c : nonWildcards) {
+			line.stream().filter(c -> !c.isWildcard()).forEach(c -> {
 				props.removeAll(c.getMatchProperties());
-			}
+			});
 			return Card.createPossibleCards(props);
 		}
 	},
@@ -43,7 +48,7 @@ enum MatchType {
 	EITHER {
 
 		@Override
-		public Set<Card> collectPossibleWildcardRepresentations(List<Card> nonWildcards) {
+		public Set<Card> collectNextCardCandidates(List<Card> line) {
 			// A line with at most one concrete card. All card properties are possible.
 			Set<Object> props = Constants.collectAllCardProperties();
 			return Card.createPossibleCards(props);
@@ -51,6 +56,10 @@ enum MatchType {
 
 	};
 	
-	public abstract Set<Card> collectPossibleWildcardRepresentations(List<Card> nonWildcards);
+	/**
+	 * Given an existing line of cards, returns the possible Cards that can 
+	 * be added as the next card to the line.
+	 */
+	public abstract Set<Card> collectNextCardCandidates(List<Card> line);
 	
 }

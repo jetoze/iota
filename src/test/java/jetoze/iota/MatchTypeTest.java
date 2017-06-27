@@ -16,8 +16,8 @@ import jetoze.iota.Constants.Shape;
 public class MatchTypeTest {
 
 	@Test
-	public void collectPossibleWildcardRepsForSAME() {
-		List<Card> nonWildcards = Arrays.asList(
+	public void collectNextCardCandidatesForSAME() {
+		List<Card> line = Arrays.asList(
 				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
 				Card.newCard(Color.BLUE, Shape.CIRCLE, 4));
 		// Expected result is any card that's blue, because that's the only
@@ -28,10 +28,10 @@ public class MatchTypeTest {
 				expected.add(Card.newCard(Color.BLUE, s, fv));
 			}
 		}
-		Set<Card> actual = MatchType.SAME.collectPossibleWildcardRepresentations(nonWildcards);
+		Set<Card> actual = MatchType.SAME.collectNextCardCandidates(line);
 		assertEquals(expected, actual);
 		
-		nonWildcards = Arrays.asList(
+		line = Arrays.asList(
 				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
 				Card.newCard(Color.BLUE, Shape.CIRCLE, 1));
 		// Expected result is any card that's blue, or has the facevalue 1, because 
@@ -47,14 +47,24 @@ public class MatchTypeTest {
 				expected.add(Card.newCard(Color.BLUE, s, fv));
 			}
 		}
-		actual = MatchType.SAME.collectPossibleWildcardRepresentations(nonWildcards);
+		actual = MatchType.SAME.collectNextCardCandidates(line);
 		assertEquals(expected, actual);
 
-		nonWildcards = Arrays.asList(
+		// Adding a wildcard to the line should not change the result.
+		line = Arrays.asList(
+				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
+				Card.newCard(Color.BLUE, Shape.CIRCLE, 1),
+				Card.wildcard());
+		// Expected result is any card that's blue, or has the facevalue 1, because 
+		// both those properties are common.
+		actual = MatchType.SAME.collectNextCardCandidates(line);
+		assertEquals(expected, actual);
+
+		line = Arrays.asList(
 				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
 				Card.newCard(Color.BLUE, Shape.CIRCLE, 1),
 				Card.newCard(Color.GREEN, Shape.CROSS, 2));
-		assertTrue(MatchType.SAME.collectPossibleWildcardRepresentations(nonWildcards).isEmpty());
+		assertTrue(MatchType.SAME.collectNextCardCandidates(line).isEmpty());
 	
 	}
 
