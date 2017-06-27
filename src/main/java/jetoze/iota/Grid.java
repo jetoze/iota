@@ -38,20 +38,20 @@ public final class Grid {
 	 * Adds a new card to the grid. Returns a set containing all cards in the lines
 	 * that were appended to as a result.
 	 */
-	public ImmutableSet<Card> addCard(Card card, int row, int col) {
+	public ImmutableList<Card> addCard(Card card, int row, int col) {
 		return addCard(card, new Position(row, col));
 	}
 
-	public ImmutableSet<Card> addCard(Card card, Position position) {
+	public ImmutableList<Card> addCard(Card card, Position position) {
 		NewCardEffect e = new NewCardEffect(card, position);
 		checkArgument(e.isValid());
 		e.apply();
-		return e.getSetOfPointCards();
+		return e.getListOfPointCards();
 	}
 	
 	public int addLine(LineItem... cards) {
 		checkArgument(cards.length > 0);
-		Set<Card> pointCards = new HashSet<>();
+		List<Card> pointCards = new ArrayList<>();
 		for (LineItem card : cards) {
 			pointCards.addAll(addCard(card.getCard(), card.getPosition()));
 		}
@@ -280,12 +280,22 @@ public final class Grid {
 			grid.put(position.row, position.col, newCard);
 		}
 		
-		public ImmutableSet<Card> getSetOfPointCards() {
+		public ImmutableList<Card> getListOfPointCards() {
 			checkState(this.horizontalLine != null && this.verticalLine != null);
-			return ImmutableSet.<Card>builder()
-					.addAll(this.horizontalLine.getCards())
-					.addAll(this.verticalLine.getCards())
-					.build();
+			ImmutableList.Builder<Card> builder = ImmutableList.builder();
+			// Do not include a card that belongs to a single-item line,
+			// since that card will be counted in the other line. For example,
+			// when adding a third card to a horizontal line, this.verticalLine
+			// will be a single-card line containing the new card.
+			// Only if a card appears in two multi-card lines should it be 
+			// counted twice.
+			if (this.horizontalLine.length() > 1) {
+				builder.addAll(this.horizontalLine.getCards());
+			}
+			if (this.verticalLine.length() > 1) {
+				builder.addAll(this.verticalLine.getCards());
+			}
+			return builder.build();
 		}
 	}
 	
