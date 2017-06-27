@@ -10,8 +10,8 @@ enum MatchType {
 
 		@Override
 		public Set<Card> collectCandidatesForNextCard(List<Card> line) {
-			// TODO: It should be possible to create commonProperties
-			// via a Collector.
+			// The following could be rewritten using Stream.reduce, but the
+			// resulting code is not any prettier.
 			Set<Object> commonProperties = null;
 			for (Card c : line) {
 				if (c.isWildcard()) {
