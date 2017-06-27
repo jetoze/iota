@@ -186,4 +186,45 @@ public class GridTest {
 		assertFalse(grid.isCardAllowed(Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 3, 1));
 	}
 	
+	@Test
+	public void addSingleCardLine() {
+		// [B-Sq-1]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+
+		// [B-Sq-1] - *[B-Ci-4]*
+		int expectedPoints = 5;
+		int actualPoints = grid.addLine(new LineItem(
+				Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1));
+		assertEquals(expectedPoints, actualPoints);
+		
+		// [B-Sq-1] - [B-Ci-4] - *[B-Cr-2]*
+		expectedPoints = 7;
+		actualPoints = grid.addLine(new LineItem(
+				Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2));
+		assertEquals(expectedPoints, actualPoints);
+		
+		// *[B-Tr-3]* - [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
+		expectedPoints = 10;
+		actualPoints = grid.addLine(new LineItem(
+				Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 0, -1));
+		assertEquals(expectedPoints, actualPoints);
+		
+		// *[G-Tr-1]*
+		//     |
+		//  [B-Tr-3] - [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
+		expectedPoints = 4;
+		actualPoints = grid.addLine(new LineItem(
+				Card.newCard(Color.GREEN, Shape.TRIANGLE, 1), -1, -1));
+		assertEquals(expectedPoints, actualPoints);
+		
+		// [G-Tr-1] - *[R-Ci-2]*
+		//    |           |
+		// [B-Tr-3] -  [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
+		expectedPoints = 6;
+		actualPoints = grid.addLine(new LineItem(
+				Card.newCard(Color.RED, Shape.CIRCLE, 2), -1, 0));
+		assertEquals(expectedPoints, actualPoints);
+	}
+	
 }

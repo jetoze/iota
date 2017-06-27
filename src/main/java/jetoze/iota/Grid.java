@@ -7,7 +7,6 @@ import static com.google.common.base.Preconditions.checkState;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,10 +39,25 @@ public final class Grid {
 	 * that were appended to as a result.
 	 */
 	public ImmutableSet<Card> addCard(Card card, int row, int col) {
-		NewCardEffect e = new NewCardEffect(card, new Position(row, col));
+		return addCard(card, new Position(row, col));
+	}
+
+	public ImmutableSet<Card> addCard(Card card, Position position) {
+		NewCardEffect e = new NewCardEffect(card, position);
 		checkArgument(e.isValid());
 		e.apply();
 		return e.getSetOfPointCards();
+	}
+	
+	public int addLine(LineItem... cards) {
+		checkArgument(cards.length > 0);
+		Set<Card> pointCards = new HashSet<>();
+		for (LineItem card : cards) {
+			pointCards.addAll(addCard(card.getCard(), card.getPosition()));
+		}
+		return pointCards.stream()
+				.mapToInt(Card::getFaceValue)
+				.sum();
 	}
 	
 	@Nullable
@@ -191,8 +205,8 @@ public final class Grid {
 		private final Line verticalLine;
 
 		public NewCardEffect(Card newCard, Position position) {
-			this.newCard = newCard;
-			this.position = position;
+			this.newCard = checkNotNull(newCard);
+			this.position = checkNotNull(position);
 			this.horizontalLine = createHorizontalLine(newCard, position);
 			this.verticalLine = createVerticalLine(newCard, position);
 		}
@@ -276,57 +290,6 @@ public final class Grid {
 	}
 	
 	
-	private static final class Position {
-		
-		public final int row;
-		
-		public final int col;
-		
-		public Position(int row, int col) {
-			this.row = row;
-			this.col = col;
-		}
-		
-		public Position leftOf() {
-			return new Position(row, col - 1);
-		}
-		
-		public Position rightOf() {
-			return new Position(row, col + 1);
-		}
-		
-		public Position above() {
-			return new Position(row - 1, col);
-		}
-		
-		public Position below() {
-			return new Position(row + 1, col);
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-			if (o == this) {
-				return true; 
-			}
-			if (o instanceof Position) {
-				Position that = (Position) o;
-				return this.row == that.row && this.col == that.col;
-			}
-			return false;
-		}
-		
-		@Override
-		public int hashCode() {
-			return Objects.hash(row, col);
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("[%d, %d]", row, col);
-		}
-	}
-
-	
 	private static class Line {
 		
 		private final ImmutableList<LineItem> items;
@@ -361,27 +324,6 @@ public final class Grid {
 		public Set<Card> collectCandidatesForNextCard() {
 			List<Card> cards = getCards();
 			return matchType.collectCandidatesForNextCard(cards);
-		}
-	}
-	
-	
-	private static class LineItem {
-		
-		private final Card card;
-		
-		private final Position position;
-
-		public LineItem(Card card, Position position) {
-			this.card = card;
-			this.position = position;
-		}
-
-		public Card getCard() {
-			return card;
-		}
-
-		public Position getPosition() {
-			return position;
 		}
 	}
 	
