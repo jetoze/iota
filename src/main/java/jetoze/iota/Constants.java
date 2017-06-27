@@ -14,7 +14,7 @@ public final class Constants {
 	
 	public static enum Color {
 		
-		RED, GREEN, BLUE, YELLOW, WHITE
+		RED, GREEN, BLUE, YELLOW
 		
 	}
 
