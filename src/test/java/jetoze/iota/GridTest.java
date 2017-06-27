@@ -226,5 +226,19 @@ public class GridTest {
 				Card.newCard(Color.RED, Shape.CIRCLE, 2), -1, 0));
 		assertEquals(expectedPoints, actualPoints);
 	}
+
+	@Test
+	public void addTwoCardLine() {
+		// [B-Sq-1]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+
+		// [B-Sq-1] - *[B-Ci-4]* - *[B-Cr-2]*
+		int expectedPoints = 7;
+		int actualPoints = grid.addLine(
+				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1),
+				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2));
+		assertEquals(expectedPoints, actualPoints);
+	}
 	
 }
