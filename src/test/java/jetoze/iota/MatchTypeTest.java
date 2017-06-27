@@ -20,7 +20,7 @@ import jetoze.iota.Constants.Shape;
 public class MatchTypeTest {
 
 	@Test
-	public void collectNextCardCandidatesForSAME() {
+	public void collectCandidatesForNextCardForSAME() {
 		List<Card> line = Arrays.asList(
 				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
 				Card.newCard(Color.BLUE, Shape.CIRCLE, 4));
@@ -32,7 +32,7 @@ public class MatchTypeTest {
 				expected.add(Card.newCard(Color.BLUE, s, fv));
 			}
 		}
-		Set<Card> actual = MatchType.SAME.collectNextCardCandidates(line);
+		Set<Card> actual = MatchType.SAME.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 		
 		line = Arrays.asList(
@@ -51,7 +51,7 @@ public class MatchTypeTest {
 				expected.add(Card.newCard(Color.BLUE, s, fv));
 			}
 		}
-		actual = MatchType.SAME.collectNextCardCandidates(line);
+		actual = MatchType.SAME.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 
 		// Adding a wildcard to the line should not change the result.
@@ -61,18 +61,18 @@ public class MatchTypeTest {
 				Card.wildcard());
 		// Expected result is any card that's blue, or has the facevalue 1, because 
 		// both those properties are common.
-		actual = MatchType.SAME.collectNextCardCandidates(line);
+		actual = MatchType.SAME.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 
 		line = Arrays.asList(
 				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
 				Card.newCard(Color.BLUE, Shape.CIRCLE, 1),
 				Card.newCard(Color.GREEN, Shape.CROSS, 2));
-		assertTrue(MatchType.SAME.collectNextCardCandidates(line).isEmpty());
+		assertTrue(MatchType.SAME.collectCandidatesForNextCard(line).isEmpty());
 	}
 
 	@Test
-	public void collectNextCardCandidatesForDIFFERENT() {
+	public void collectCandidatesForNextCardForDIFFERENT() {
 		List<Card> line = Lists.newArrayList(
 				Card.newCard(Color.BLUE, Shape.SQUARE, 1),
 				Card.newCard(Color.GREEN, Shape.CIRCLE, 4));
@@ -85,40 +85,40 @@ public class MatchTypeTest {
 				expected.add(Card.newCard(c, s, 3));
 			}
 		}
-		Set<Card> actual = MatchType.DIFFERENT.collectNextCardCandidates(line);
+		Set<Card> actual = MatchType.DIFFERENT.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 		
 		// Adding a wildcard to the line should not change the result.
 		line.add(Card.wildcard());
 		// Expected result is any card that's blue, or has the facevalue 1, because 
 		// both those properties are common.
-		actual = MatchType.DIFFERENT.collectNextCardCandidates(line);
+		actual = MatchType.DIFFERENT.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 
 		// Collapse the number of choices to a single card
 		line.add(Card.newCard(Color.RED, Shape.CROSS, 2));
 		expected = Collections.singleton(Card.newCard(Color.YELLOW, Shape.TRIANGLE, 3));
-		actual = MatchType.DIFFERENT.collectNextCardCandidates(line);
+		actual = MatchType.DIFFERENT.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 		
 		line.add(Card.newCard(Color.YELLOW, Shape.TRIANGLE, 3));
-		assertTrue(MatchType.DIFFERENT.collectNextCardCandidates(line).isEmpty());
+		assertTrue(MatchType.DIFFERENT.collectCandidatesForNextCard(line).isEmpty());
 	}
 
 
 	@Test
-	public void collectNextCardCandidatesForEITHER() {
+	public void collectCandidatesForNextCardForEITHER() {
 		List<Card> line = Lists.newArrayList(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
 		// Expected result is any card.
 		Set<Card> expected = Card.createPossibleCards(Constants.collectAllCardProperties());
-		Set<Card> actual = MatchType.EITHER.collectNextCardCandidates(line);
+		Set<Card> actual = MatchType.EITHER.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 		
 		// Adding a wildcard to the line should not change the result.
 		line.add(Card.wildcard());
 		// Expected result is any card that's blue, or has the facevalue 1, because 
 		// both those properties are common.
-		actual = MatchType.EITHER.collectNextCardCandidates(line);
+		actual = MatchType.EITHER.collectCandidatesForNextCard(line);
 		assertEquals(expected, actual);
 	}
 }

@@ -9,7 +9,7 @@ enum MatchType {
 	SAME {
 
 		@Override
-		public Set<Card> collectNextCardCandidates(List<Card> line) {
+		public Set<Card> collectCandidatesForNextCard(List<Card> line) {
 			// TODO: It should be possible to create commonProperties
 			// via a Collector.
 			Set<Object> commonProperties = null;
@@ -36,7 +36,7 @@ enum MatchType {
 	DIFFERENT {
 
 		@Override
-		public Set<Card> collectNextCardCandidates(List<Card> line) {
+		public Set<Card> collectCandidatesForNextCard(List<Card> line) {
 			Set<Object> props = Constants.collectAllCardProperties();
 			line.stream().filter(c -> !c.isWildcard()).forEach(c -> {
 				props.removeAll(c.getMatchProperties());
@@ -48,7 +48,7 @@ enum MatchType {
 	EITHER {
 
 		@Override
-		public Set<Card> collectNextCardCandidates(List<Card> line) {
+		public Set<Card> collectCandidatesForNextCard(List<Card> line) {
 			// A line with at most one concrete card. All card properties are possible.
 			Set<Object> props = Constants.collectAllCardProperties();
 			return Card.createPossibleCards(props);
@@ -60,6 +60,6 @@ enum MatchType {
 	 * Given an existing line of cards, returns the possible Cards that can 
 	 * be added as the next card to the line.
 	 */
-	public abstract Set<Card> collectNextCardCandidates(List<Card> line);
+	public abstract Set<Card> collectCandidatesForNextCard(List<Card> line);
 	
 }

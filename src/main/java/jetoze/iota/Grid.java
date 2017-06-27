@@ -215,47 +215,51 @@ public final class Grid {
 					// (This ensures all cards are connected in the grid.)
 					return false;
 				}
-				// Wildcard validation - ensure that a wildcard that appears in two lines
-				// represent the same card in both lines. Pseudo-code:
-				// for each wc in this.hLine:
-				//   if wc also in a vLine (not necessarily this.vLine)
-				//     collect possible card properties from this.hLine
-				//     collect possible card properties from vLine
-				//     look for matching set of properties
-				// for each wc in this.vLine:
-				//   if wc also in an hLine (not necessarily this.hLine)
-				//     collect possible card properties from this.vLine
-				//     collect possible card properties from hLine
-				//     look for matching set of properties
-				for (LineItem wcItem : this.horizontalLine.getWildcardItems()) {
-					Line vLine = createVerticalLine(wcItem.getCard(), wcItem.getPosition());
-					if (vLine.length() == 1) {
-						continue;
-					}
-					Set<Card> hLineCandidates = this.horizontalLine.collectPossibleWildcardRepresentations();
-					Set<Card> vLineCandidates = vLine.collectPossibleWildcardRepresentations();
-					Set<Card> candidates = hLineCandidates;
-					candidates.retainAll(vLineCandidates);
-					if (candidates.isEmpty()) {
-						return false;
-					}
-				}
-				for (LineItem wcItem : this.verticalLine.getWildcardItems()) {
-					Line hLine = createHorizontalLine(wcItem.getCard(), wcItem.getPosition());
-					if (hLine.length() == 1) {
-						continue;
-					}
-					Set<Card> vLineCandidates = this.verticalLine.collectPossibleWildcardRepresentations();
-					Set<Card> hLineCandidates = hLine.collectPossibleWildcardRepresentations();
-					Set<Card> candidates = vLineCandidates;
-					candidates.retainAll(hLineCandidates);
-					if (candidates.isEmpty()) {
-						return false;
-					}
-				}
-				// Hooray, we have a valid line!
-				return true;
+				return validateWildcards();
 			}
+		}
+
+		private boolean validateWildcards() {
+			// Wildcard validation - ensure that a wildcard that appears in two lines
+			// represent the same card in both lines. Pseudo-code:
+			// for each wc in this.hLine:
+			//   if wc also in a vLine (not necessarily this.vLine)
+			//     collect possible card properties from this.hLine
+			//     collect possible card properties from vLine
+			//     look for matching set of properties
+			// for each wc in this.vLine:
+			//   if wc also in an hLine (not necessarily this.hLine)
+			//     collect possible card properties from this.vLine
+			//     collect possible card properties from hLine
+			//     look for matching set of properties
+			for (LineItem wcItem : this.horizontalLine.getWildcardItems()) {
+				Line vLine = createVerticalLine(wcItem.getCard(), wcItem.getPosition());
+				if (vLine.length() == 1) {
+					continue;
+				}
+				Set<Card> hLineCandidates = this.horizontalLine.collectCandidatesForNextCard();
+				Set<Card> vLineCandidates = vLine.collectCandidatesForNextCard();
+				Set<Card> candidates = hLineCandidates;
+				candidates.retainAll(vLineCandidates);
+				if (candidates.isEmpty()) {
+					return false;
+				}
+			}
+			for (LineItem wcItem : this.verticalLine.getWildcardItems()) {
+				Line hLine = createHorizontalLine(wcItem.getCard(), wcItem.getPosition());
+				if (hLine.length() == 1) {
+					continue;
+				}
+				Set<Card> vLineCandidates = this.verticalLine.collectCandidatesForNextCard();
+				Set<Card> hLineCandidates = hLine.collectCandidatesForNextCard();
+				Set<Card> candidates = vLineCandidates;
+				candidates.retainAll(hLineCandidates);
+				if (candidates.isEmpty()) {
+					return false;
+				}
+			}
+			// Hooray, we have a valid line!
+			return true;
 		}
 		
 		public void apply() {
@@ -354,9 +358,9 @@ public final class Grid {
 					.collect(Collectors.toList());
 		}
 		
-		public Set<Card> collectPossibleWildcardRepresentations() {
+		public Set<Card> collectCandidatesForNextCard() {
 			List<Card> cards = getCards();
-			return matchType.collectNextCardCandidates(cards);
+			return matchType.collectCandidatesForNextCard(cards);
 		}
 	}
 	
