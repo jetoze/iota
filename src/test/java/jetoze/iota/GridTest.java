@@ -316,4 +316,24 @@ public class GridTest {
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
+	@Test
+	public void addingInvalidLineShouldLeaveTheGridUntouched() {
+		// [B-Sq-1] - [B-Ci-2]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addLine(new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 1));
+		// The following should not be allowed.
+		// [B-Sq-1] - [B-Ci-2] - *[B-Cr-4]* - *[Y-TR-1]*
+		try {
+			grid.addLine(
+					new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 4), 0, 2),
+					new LineItem(Card.newCard(Color.YELLOW, Shape.TRIANGLE, 1), 0, 3));
+			fail();
+		} catch (IllegalArgumentException e) {
+			int expectedNumberOfCards = 2;
+			int actualNumberOfCards = grid.getNumberOfCards();
+			assertEquals(expectedNumberOfCards, actualNumberOfCards);
+		}
+	}
+	
 }

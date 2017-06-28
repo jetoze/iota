@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import static java.util.stream.Collectors.*;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -31,6 +33,10 @@ public final class Grid {
 		grid.put(0, 0, card);
 	}
 	
+	public int getNumberOfCards() {
+		return grid.size();
+	}
+	
 	public boolean isCardAllowed(Card card, int row, int col) {
 		checkNotNull(card);
 		NewCardEffect e = new NewCardEffect(card, new Position(row, col));
@@ -55,7 +61,7 @@ public final class Grid {
 	public int addLine(LineItem... cards) {
 		checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
 		Orientation.validatePoints(cards);
-		List<Line> pointGeneratingLines = new ArrayList<>();
+		List<NewCardEffect> effects = new ArrayList<>();
 		List<LineItem> remainingCards = Lists.newArrayList(cards);
 		// TODO: We use NewCardEffect directly here, to avoid creating the same NewCardEffect
 		// twice; once for validating the position, and then once again when adding the card.
@@ -68,15 +74,22 @@ public final class Grid {
 				NewCardEffect e = new NewCardEffect(card);
 				if (e.isValid()) {
 					e.apply();
-					pointGeneratingLines.addAll(e.getPointGeneratingLines());
+					effects.add(e);
 					it.remove();
 					cardWasAdded = true;
 				}
 			}
 			if (!cardWasAdded) {
+				// Rollback
+				for (NewCardEffect e : effects) {
+					e.rollback();
+				}
 				throw new IllegalArgumentException("Not connected to the grid.");
 			}
 		}
+		List<Line> pointGeneratingLines = effects.stream()
+				.flatMap(e -> e.getPointGeneratingLines().stream())
+				.collect(toList());
 		PointCalculator pg = new PointCalculator(pointGeneratingLines);
 		return pg.getPoints();
 	}
@@ -118,7 +131,7 @@ public final class Grid {
 		}
 		MatchType matchType = deduceMatchType(items.stream()
 				.map(LineItem::getCard)
-				.collect(Collectors.toList()));
+				.collect(toList()));
 		return (matchType != null)
 				? new Line(items, orientation, matchType)
 				: null;
@@ -304,6 +317,10 @@ public final class Grid {
 		
 		public void apply() {
 			grid.put(position.row, position.col, newCard);
+		}
+		
+		public void rollback() {
+			grid.remove(position.row, position.col);
 		}
 		
 		public ImmutableList<Line> getPointGeneratingLines() {
