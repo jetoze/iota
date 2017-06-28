@@ -286,4 +286,34 @@ public class GridTest {
 				new LineItem(Card.newCard(Color.GREEN, Shape.SQUARE, 2), 0, 1));
 	}
 	
+	@Test
+	public void orderShouldNotMatter() {
+		// [B-Sq-1]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+
+		// Create the following line, but pass in the third card first
+		// [B-Sq-1] - *[B-Ci-4]* - *[B-Cr-2]*
+		int expectedPoints = 1 + 4 + 2;
+		int actualPoints = grid.addLine(
+				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2),
+				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1));
+		assertEquals(expectedPoints, actualPoints);
+		
+		// Create the following line, but pass in the cards bottom up
+		// [B-Sq-1] - [B-Ci-4] -  [B-Cr-2]
+		//                           |
+		//                       *[Y-Ci-2]*
+        //                           |
+		//                       *[R-Tr-2]*
+        //                           |
+		//                       *[R-Sq-2]*
+		expectedPoints = (2 + 2 + 2 + 2);
+		actualPoints = grid.addLine(
+				new LineItem(Card.newCard(Color.RED, Shape.SQUARE, 2), 3, 2),
+				new LineItem(Card.newCard(Color.RED, Shape.TRIANGLE, 2), 2, 2),
+				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 2), 1, 2));
+		assertEquals(expectedPoints, actualPoints);
+	}
+	
 }

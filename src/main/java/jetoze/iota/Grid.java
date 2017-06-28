@@ -7,6 +7,7 @@ import static com.google.common.base.Preconditions.checkState;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
 public final class Grid {
@@ -54,8 +56,26 @@ public final class Grid {
 		checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
 		Orientation.validatePoints(cards);
 		List<Line> pointGeneratingLines = new ArrayList<>();
-		for (LineItem card : cards) {
-			pointGeneratingLines.addAll(addCard(card.getCard(), card.getPosition()));
+		List<LineItem> remainingCards = Lists.newArrayList(cards);
+		// TODO: We use NewCardEffect directly here, to avoid creating the same NewCardEffect
+		// twice; once for validating the position, and then once again when adding the card.
+		// As a result, the addCard method above is no longer needed.
+		while (!remainingCards.isEmpty()) {
+			Iterator<LineItem> it = remainingCards.iterator();
+			boolean cardWasAdded = false;
+			while (it.hasNext() && !cardWasAdded) {
+				LineItem card = it.next();
+				NewCardEffect e = new NewCardEffect(card);
+				if (e.isValid()) {
+					e.apply();
+					pointGeneratingLines.addAll(e.getPointGeneratingLines());
+					it.remove();
+					cardWasAdded = true;
+				}
+			}
+			if (!cardWasAdded) {
+				throw new IllegalArgumentException("Not connected to the grid.");
+			}
 		}
 		PointCalculator pg = new PointCalculator(pointGeneratingLines);
 		return pg.getPoints();
@@ -206,6 +226,10 @@ public final class Grid {
 		@Nullable
 		private final Line verticalLine;
 
+		public NewCardEffect(LineItem item) {
+			this(item.getCard(), item.getPosition());
+		}
+		
 		public NewCardEffect(Card newCard, Position position) {
 			this.newCard = checkNotNull(newCard);
 			this.position = checkNotNull(position);

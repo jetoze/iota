@@ -1,12 +1,9 @@
-package jetoze.iota;import static java.util.stream.Collectors.toList;
+package jetoze.iota;import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.*;
-
 import java.util.TreeSet;
-import java.util.stream.Stream;
 
 public enum Orientation {
 
