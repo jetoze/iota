@@ -271,4 +271,19 @@ public class GridTest {
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
+	@Test(expected = IllegalArgumentException.class)
+	public void addedLineMustInFactBeALine() {
+		// [B-Sq-1]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+
+		// The following should not be allowed.
+		// *[B-Ci-2]*
+		//     |
+		//  [B-Sq-1] - *[G-Sq-2]*
+		grid.addLine(
+				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), -1, 0),
+				new LineItem(Card.newCard(Color.GREEN, Shape.SQUARE, 2), 0, 1));
+	}
+	
 }

@@ -103,7 +103,7 @@ final class Line {
 	@Override
 	public String toString() {
 		return items.stream()
-				.map(i -> String.format("%s@%s", i.getCard(), i.getPosition()))
+				.map(LineItem::toString)
 				.collect(joining(" - ", "<|", "|>"));
 	}
 	

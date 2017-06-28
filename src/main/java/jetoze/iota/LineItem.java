@@ -28,4 +28,10 @@ public final class LineItem {
 	public int getFaceValue() {
 		return card.getFaceValue();
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s@%s", card, position);
+	}
+	
 }
