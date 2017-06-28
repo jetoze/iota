@@ -17,7 +17,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -42,30 +41,12 @@ public final class Grid {
 		return e.isValid();
 	}
 	
-	/**
-	 * Adds a new card to the grid. Returns a set containing all cards in the lines
-	 * that were appended to as a result.
-	 */
-	ImmutableList<Line> addCard(Card card, int row, int col) {
-		return addCard(card, new Position(row, col));
-	}
-
-	ImmutableList<Line> addCard(Card card, Position position) {
-		NewCardEffect e = new NewCardEffect(card, position);
-		checkArgument(e.isValid());
-		e.apply();
-		return e.all();
-	}
-	
 	public int addLine(LineItem... cards) {
 		checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
 		Orientation.validatePoints(cards);
 		List<NewCardEffect> effects = new ArrayList<>();
 		List<LineItem> remainingCards = Lists.newArrayList(cards);
 		AffectedLines pointGeneratingLines = new AffectedLines();
-		// TODO: We use NewCardEffect directly here, to avoid creating the same NewCardEffect
-		// twice; once for validating the position, and then once again when adding the card.
-		// As a result, the addCard method above is no longer needed.
 		while (!remainingCards.isEmpty()) {
 			Iterator<LineItem> it = remainingCards.iterator();
 			boolean cardWasAdded = false;
@@ -323,13 +304,6 @@ public final class Grid {
 		public AffectedLines getAffectedLines() {
 			checkState(this.horizontalLine != null && this.verticalLine != null);
 			return new AffectedLines(this.horizontalLine, this.verticalLine);
-		}
-		
-		public ImmutableList<Line> all() {
-			AffectedLines a = getAffectedLines();
-			List<Line> all = a.get(Orientation.HORIZONTAL);
-			all.addAll(a.get(Orientation.VERTICAL));
-			return ImmutableList.copyOf(all);
 		}
 	}
 	
