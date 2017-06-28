@@ -52,6 +52,7 @@ public final class Grid {
 	
 	public int addLine(LineItem... cards) {
 		checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
+		Orientation.validatePoints(cards);
 		List<Line> pointGeneratingLines = new ArrayList<>();
 		for (LineItem card : cards) {
 			pointGeneratingLines.addAll(addCard(card.getCard(), card.getPosition()));
