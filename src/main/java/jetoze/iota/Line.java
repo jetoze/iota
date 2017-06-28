@@ -56,6 +56,10 @@ final class Line {
 		return items.size();
 	}
 	
+	public Orientation getOrientation() {
+		return orientation;
+	}
+	
 	public List<Card> getCards() {
 		return items.stream()
 				.map(LineItem::getCard)

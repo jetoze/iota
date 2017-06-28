@@ -3,23 +3,22 @@ package jetoze.iota;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
@@ -55,7 +54,7 @@ public final class Grid {
 		NewCardEffect e = new NewCardEffect(card, position);
 		checkArgument(e.isValid());
 		e.apply();
-		return e.getPointGeneratingLines();
+		return e.all();
 	}
 	
 	public int addLine(LineItem... cards) {
@@ -63,6 +62,7 @@ public final class Grid {
 		Orientation.validatePoints(cards);
 		List<NewCardEffect> effects = new ArrayList<>();
 		List<LineItem> remainingCards = Lists.newArrayList(cards);
+		AffectedLines pointGeneratingLines = new AffectedLines();
 		// TODO: We use NewCardEffect directly here, to avoid creating the same NewCardEffect
 		// twice; once for validating the position, and then once again when adding the card.
 		// As a result, the addCard method above is no longer needed.
@@ -74,6 +74,7 @@ public final class Grid {
 				NewCardEffect e = new NewCardEffect(card);
 				if (e.isValid()) {
 					e.apply();
+					pointGeneratingLines = pointGeneratingLines.add(e.getAffectedLines());
 					effects.add(e);
 					it.remove();
 					cardWasAdded = true;
@@ -87,11 +88,7 @@ public final class Grid {
 				throw new IllegalArgumentException("Not connected to the grid.");
 			}
 		}
-		List<Line> pointGeneratingLines = effects.stream()
-				.flatMap(e -> e.getPointGeneratingLines().stream())
-				.collect(toList());
-		PointCalculator pg = new PointCalculator(pointGeneratingLines);
-		return pg.getPoints();
+		return pointGeneratingLines.getPoints();
 	}
 	
 	@Nullable
@@ -323,62 +320,85 @@ public final class Grid {
 			grid.remove(position.row, position.col);
 		}
 		
-		public ImmutableList<Line> getPointGeneratingLines() {
+		public AffectedLines getAffectedLines() {
 			checkState(this.horizontalLine != null && this.verticalLine != null);
-			ImmutableList.Builder<Line> builder = ImmutableList.builder();
-			// Do not include a card that belongs to a single-item line,
-			// since that card will be counted in the other line. For example,
-			// when adding a third card to a horizontal line, this.verticalLine
-			// will be a single-card line containing the new card.
-			// Only if a card appears in two multi-card lines should it be 
-			// counted twice.
-			if (this.horizontalLine.length() > 1) {
-				builder.add(this.horizontalLine);
-			}
-			if (this.verticalLine.length() > 1) {
-				builder.add(this.verticalLine);
-			}
-			return builder.build();
+			return new AffectedLines(this.horizontalLine, this.verticalLine);
+		}
+		
+		public ImmutableList<Line> all() {
+			AffectedLines a = getAffectedLines();
+			List<Line> all = a.get(Orientation.HORIZONTAL);
+			all.addAll(a.get(Orientation.VERTICAL));
+			return ImmutableList.copyOf(all);
 		}
 	}
-
 	
-	private static class PointCalculator {
+	
+	private static class AffectedLines {
 		
-		private ImmutableSet<Line> uniqueLines;
+		private final ImmutableMultimap<Orientation, Line> lines;
 		
-		public PointCalculator(List<Line> lines) {
-			this.uniqueLines = findUniqueLines(lines);
+		public AffectedLines() {
+			lines = ImmutableMultimap.<Orientation, Line>builder().build();
 		}
 		
-		private static ImmutableSet<Line> findUniqueLines(List<Line> lines) {
-			// TODO: I'm sure this algorithm can be improved on.
+		public AffectedLines(Line horizontal, Line vertical) {
+			this(Arrays.asList(horizontal, vertical));
+		}
+		
+		public AffectedLines(List<Line> lines) {
+			ImmutableMultimap.Builder<Orientation, Line> builder = ImmutableMultimap.builder();
+			for (Line line : lines) {
+				// Do not include a card that belongs to a single-item line,
+				// since that card will be counted in the other line. For example,
+				// when adding a third card to a horizontal line, this.verticalLine
+				// will be a single-card line containing the new card.
+				// Only if a card appears in two multi-card lines should it be 
+				// counted twice.
+				if (line.length() > 1) {
+					builder.put(line.getOrientation(), line);
+				}
+			}
+			this.lines = builder.build();
+		}
+		
+		public int getPoints() {
+			return lines.values().stream()
+					.mapToInt(Line::getFaceValue)
+					.sum();
+		}
+
+		public AffectedLines add(AffectedLines other) {
+			List<Line> horizontal = this.get(Orientation.HORIZONTAL);
+			horizontal.addAll(other.get(Orientation.HORIZONTAL));
+			removeOverlappingLines(horizontal);
+			List<Line> vertical = this.get(Orientation.VERTICAL);
+			vertical.addAll(other.get(Orientation.VERTICAL));
+			removeOverlappingLines(vertical);
+			horizontal.addAll(vertical);
+			return new AffectedLines(horizontal);
+		}
+		
+		private void removeOverlappingLines(List<Line> lines) {
 			lines.sort(Comparator.comparing(Line::length).reversed());
 			Set<Line> toRemove = new HashSet<>();
 			for (int n = 0; n < lines.size() - 1; ++n) {
 				Line longer = lines.get(n);
 				for (int m = n + 1; m < lines.size(); ++m) {
 					Line shorter = lines.get(m);
-					if (longer.isOverlappingWith(shorter)) {
+					// No need to compare lines of equal length, because they will always be unique.
+					// This is due to the nature of the problem.
+					if (longer.length() > shorter.length() && longer.isOverlappingWith(shorter)) {
 						toRemove.add(shorter);
 					}
 				}
 			}
-			ImmutableSet.Builder<Line> builder = ImmutableSet.builder();
-			for (Line line : lines) {
-				if (!toRemove.contains(line)) {
-					builder.add(line);
-				}
-			}
-			return builder.build();
+			lines.removeAll(toRemove);
 		}
 		
-		public int getPoints() {
-			return uniqueLines.stream()
-					.mapToInt(Line::getFaceValue)
-					.sum();
+		private List<Line> get(Orientation o) {
+			return new ArrayList<>(this.lines.get(o));
 		}
-		
 	}
-	
+		
 }
