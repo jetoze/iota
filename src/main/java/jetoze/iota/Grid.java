@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 
 public final class Grid {
@@ -37,50 +39,50 @@ public final class Grid {
 	 * Adds a new card to the grid. Returns a set containing all cards in the lines
 	 * that were appended to as a result.
 	 */
-	public ImmutableList<Card> addCard(Card card, int row, int col) {
+	ImmutableList<Line> addCard(Card card, int row, int col) {
 		return addCard(card, new Position(row, col));
 	}
 
-	public ImmutableList<Card> addCard(Card card, Position position) {
+	ImmutableList<Line> addCard(Card card, Position position) {
 		NewCardEffect e = new NewCardEffect(card, position);
 		checkArgument(e.isValid());
 		e.apply();
-		return e.getListOfPointCards();
+		return e.getPointGeneratingLines();
 	}
 	
 	public int addLine(LineItem... cards) {
 		checkArgument(cards.length > 0);
-		List<Card> pointCards = new ArrayList<>();
+		List<Line> pointGeneratingLines = new ArrayList<>();
 		for (LineItem card : cards) {
-			pointCards.addAll(addCard(card.getCard(), card.getPosition()));
+			pointGeneratingLines.addAll(addCard(card.getCard(), card.getPosition()));
 		}
-		return pointCards.stream()
-				.mapToInt(Card::getFaceValue)
-				.sum();
+		PointGenerator pg = new PointGenerator(pointGeneratingLines);
+		return pg.getPoints();
 	}
 	
 	@Nullable
 	private Line createHorizontalLine(Card newCard, Position p) {
 		Position start = findStartOfRow(p);
 		Position end = findEndOfRow(p);
-		return createLine(newCard, p, start, end, Position::rightOf);
+		return createLine(newCard, p, Orientation.HORIZONTAL, start, end, Position::rightOf);
 	}
 	
 	@Nullable
 	private Line createVerticalLine(Card newCard, Position p) {
 		Position start = findStartOfColumn(p);
 		Position end = findEndOfColumn(p);
-		return createLine(newCard, p, start, end, Position::below);
+		return createLine(newCard, p, Orientation.VERTICAL, start, end, Position::below);
 	}
 	
 	@Nullable
 	private Line createLine(Card newCard,
 							Position newCardPosition,
+							Orientation orientation,
 						 	Position start, 
 						 	Position end, 
 						 	Function<Position, Position> nextGenerator) {
 		if (start.equals(end)) {
-			return Line.singleCard(newCard, newCardPosition);
+			return Line.singleCard(newCard, newCardPosition, orientation);
 		}
 		List<LineItem> items = new ArrayList<>();
 		for (Position p = start; ; p = nextGenerator.apply(p)) {
@@ -97,7 +99,7 @@ public final class Grid {
 				.map(LineItem::getCard)
 				.collect(Collectors.toList()));
 		return (matchType != null)
-				? new Line(items, matchType)
+				? new Line(items, orientation, matchType)
 				: null;
 	}
 	
@@ -279,9 +281,9 @@ public final class Grid {
 			grid.put(position.row, position.col, newCard);
 		}
 		
-		public ImmutableList<Card> getListOfPointCards() {
+		public ImmutableList<Line> getPointGeneratingLines() {
 			checkState(this.horizontalLine != null && this.verticalLine != null);
-			ImmutableList.Builder<Card> builder = ImmutableList.builder();
+			ImmutableList.Builder<Line> builder = ImmutableList.builder();
 			// Do not include a card that belongs to a single-item line,
 			// since that card will be counted in the other line. For example,
 			// when adding a third card to a horizontal line, this.verticalLine
@@ -289,51 +291,52 @@ public final class Grid {
 			// Only if a card appears in two multi-card lines should it be 
 			// counted twice.
 			if (this.horizontalLine.length() > 1) {
-				builder.addAll(this.horizontalLine.getCards());
+				builder.add(this.horizontalLine);
 			}
 			if (this.verticalLine.length() > 1) {
-				builder.addAll(this.verticalLine.getCards());
+				builder.add(this.verticalLine);
 			}
 			return builder.build();
 		}
 	}
+
 	
-	
-	private static class Line {
+	private static class PointGenerator {
 		
-		private final ImmutableList<LineItem> items;
+		private ImmutableSet<Line> uniqueLines;
 		
-		private final MatchType matchType;
-		
-		public Line(List<LineItem> items, MatchType matchType) {
-			this.items = ImmutableList.copyOf(items);
-			this.matchType = matchType;
+		public PointGenerator(List<Line> lines) {
+			this.uniqueLines = findUniqueLines(lines);
 		}
 		
-		public static Line singleCard(Card card, Position pos) {
-			return new Line(ImmutableList.of(new LineItem(card, pos)), MatchType.EITHER);
+		private static ImmutableSet<Line> findUniqueLines(List<Line> lines) {
+			// TODO: I'm sure this algorithm can be improved on.
+			lines.sort(Comparator.comparing(Line::length).reversed());
+			Set<Line> toRemove = new HashSet<>();
+			for (int n = 0; n < lines.size() - 1; ++n) {
+				Line longer = lines.get(n);
+				for (int m = n + 1; m < lines.size(); ++m) {
+					Line shorter = lines.get(m);
+					if (longer.isOverlappingWith(shorter)) {
+						toRemove.add(shorter);
+					}
+				}
+			}
+			ImmutableSet.Builder<Line> builder = ImmutableSet.builder();
+			for (Line line : lines) {
+				if (!toRemove.contains(line)) {
+					builder.add(line);
+				}
+			}
+			return builder.build();
 		}
 		
-		public int length() {
-			return items.size();
+		public int getPoints() {
+			return uniqueLines.stream()
+					.mapToInt(Line::getFaceValue)
+					.sum();
 		}
 		
-		public List<Card> getCards() {
-			return items.stream()
-					.map(LineItem::getCard)
-					.collect(Collectors.toList());
-		}
-		
-		public List<LineItem> getWildcardItems() {
-			return items.stream()
-					.filter(i -> i.getCard().isWildcard())
-					.collect(Collectors.toList());
-		}
-		
-		public Set<Card> collectCandidatesForNextCard() {
-			List<Card> cards = getCards();
-			return matchType.collectCandidatesForNextCard(cards);
-		}
 	}
 	
 }

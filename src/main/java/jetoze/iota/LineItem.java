@@ -24,4 +24,8 @@ public final class LineItem {
 	public Position getPosition() {
 		return position;
 	}
+	
+	public int getFaceValue() {
+		return card.getFaceValue();
+	}
 }

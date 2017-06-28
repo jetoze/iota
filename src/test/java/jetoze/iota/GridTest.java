@@ -1,5 +1,6 @@
 package jetoze.iota;
 
+import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -14,6 +15,7 @@ import com.google.common.collect.Sets;
 
 import jetoze.iota.Constants.Color;
 import jetoze.iota.Constants.Shape;
+
 
 public class GridTest {
 
@@ -97,16 +99,21 @@ public class GridTest {
 		Card blueTriangleThree = Card.newCard(Color.BLUE, Shape.TRIANGLE, 3);
 		Card yellowCircleTwo = Card.newCard(Color.YELLOW, Shape.CIRCLE, 2);
 		Card greenTriangleFour = Card.newCard(Color.GREEN, Shape.TRIANGLE, 4);
-		Set<Card> added = new HashSet<>();
+		Set<Line> addedLines = new HashSet<>();
 		// Row 1: blue
 		// Row 2: unique
 		// Column 1: unique
 		// Column 2: triangle
 		grid.start(blueSquareOne);
-		added.addAll(grid.addCard(blueTriangleThree, 0, 1));
-		added.addAll(grid.addCard(yellowCircleTwo, 1, 0));
-		added.addAll(grid.addCard(greenTriangleFour, 1, 1));
-		assertEquals(Sets.newHashSet(blueSquareOne, blueTriangleThree, yellowCircleTwo, greenTriangleFour), added);
+		addedLines.addAll(grid.addCard(blueTriangleThree, 0, 1));
+		addedLines.addAll(grid.addCard(yellowCircleTwo, 1, 0));
+		addedLines.addAll(grid.addCard(greenTriangleFour, 1, 1));
+		Set<Card> addedCards = addedLines.stream()
+			.flatMap(line -> line.getCards().stream())
+			.collect(toSet());
+		HashSet<Card> expected = Sets.newHashSet(blueSquareOne, blueTriangleThree, 
+				yellowCircleTwo, greenTriangleFour);
+		assertEquals(expected, addedCards);
 	}
 	
 	@Test
@@ -228,16 +235,39 @@ public class GridTest {
 	}
 
 	@Test
-	public void addTwoCardLine() {
+	public void addMultiCardLine() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
 		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
 
 		// [B-Sq-1] - *[B-Ci-4]* - *[B-Cr-2]*
-		int expectedPoints = 7;
+		int expectedPoints = 4 + 3;
 		int actualPoints = grid.addLine(
 				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1),
 				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2));
+		assertEquals(expectedPoints, actualPoints);
+		
+		//  [B-Sq-1] -  [B-Ci-4] - [B-Cr-2]
+		//     |           |
+		// *[B-Cr-3] - *[Y-Ci-4]*
+		expectedPoints = (3 + 4) + (1 + 3) + (4 + 4);
+		actualPoints = grid.addLine(
+				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 3), 1, 0),
+				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 4), 1, 1));
+		assertEquals(expectedPoints, actualPoints);
+
+		// [B-Sq-1] - [B-Ci-4] -  [B-Cr-2]
+		//     |           |
+		// [B-Cr-3] - [Y-Ci-4] - *[  WC  ]*
+		//                           |
+		//                       *[Y-Ci-2]*
+        //                           |
+		//                       *[R-Tr-2]*
+		expectedPoints = (2 + 2 + 2) + (3 + 4);
+		actualPoints = grid.addLine(
+				new LineItem(Card.wildcard(), 1, 2),
+				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 2), 2, 2),
+				new LineItem(Card.newCard(Color.RED, Shape.TRIANGLE, 2), 3, 2));
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
