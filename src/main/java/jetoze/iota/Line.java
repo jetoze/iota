@@ -17,12 +17,36 @@ final class Line {
 	
 	private final MatchType matchType;
 	
+	/**
+	 * Creates a line of the given cards and positions, orientation, and match
+	 * type.
+	 * <p>
+	 * While it may seem superfluous to specify the orientation - which could be
+	 * deduced from the positions of the items if there are two or more items -
+	 * we must also assign an specific orientation in the general case, which
+	 * includes a single-card line which does not have an inherent orientation.
+	 */
 	public Line(List<LineItem> items, Orientation orientation, MatchType matchType) {
 		this.items = ImmutableList.copyOf(items);
 		this.orientation = checkNotNull(orientation);
 		this.matchType = checkNotNull(matchType);
 	}
 	
+	/**
+	 * Creates a line of a single card.
+	 * 
+	 * @param card
+	 *            the card
+	 * @param pos
+	 *            the position of the card
+	 * @param orientation
+	 *            the orientation of the line. This may seem arbitrary for a
+	 *            single-line card, but we need a specific orientation in order
+	 *            to implement the {@link #isOverlappingWith(Line)} method
+	 *            correctly, which in turn is needed (at the moment) for
+	 *            generating the correct point total when adding a new line to
+	 *            the grid.
+	 */
 	public static Line singleCard(Card card, Position pos, Orientation orientation) {
 		return new Line(ImmutableList.of(new LineItem(card, pos)), orientation, 
 				MatchType.EITHER);

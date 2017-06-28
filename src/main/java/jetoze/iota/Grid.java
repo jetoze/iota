@@ -56,7 +56,7 @@ public final class Grid {
 		for (LineItem card : cards) {
 			pointGeneratingLines.addAll(addCard(card.getCard(), card.getPosition()));
 		}
-		PointGenerator pg = new PointGenerator(pointGeneratingLines);
+		PointCalculator pg = new PointCalculator(pointGeneratingLines);
 		return pg.getPoints();
 	}
 	
@@ -301,11 +301,11 @@ public final class Grid {
 	}
 
 	
-	private static class PointGenerator {
+	private static class PointCalculator {
 		
 		private ImmutableSet<Line> uniqueLines;
 		
-		public PointGenerator(List<Line> lines) {
+		public PointCalculator(List<Line> lines) {
 			this.uniqueLines = findUniqueLines(lines);
 		}
 		
