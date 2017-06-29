@@ -1,13 +1,14 @@
 package jetoze.iota;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import static java.util.stream.Collectors.*;
 
 final class Line {
 	
@@ -54,6 +55,10 @@ final class Line {
 	
 	public int length() {
 		return items.size();
+	}
+	
+	public boolean isLot() {
+		return length() == Constants.MAX_LINE_LENGTH;
 	}
 	
 	public Orientation getOrientation() {

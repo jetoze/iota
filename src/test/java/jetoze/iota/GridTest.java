@@ -1,9 +1,13 @@
 package jetoze.iota;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -186,7 +190,7 @@ public class GridTest {
 		assertEquals(expectedPoints, actualPoints);
 		
 		// *[B-Tr-3]* - [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
-		expectedPoints = 10;
+		expectedPoints = (3 + 1 + 4 + 2) * 2 /*one lot*/;
 		actualPoints = grid.addLine(new LineItem(
 				Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 0, -1));
 		assertEquals(expectedPoints, actualPoints);
@@ -237,7 +241,7 @@ public class GridTest {
 		//                       *[Y-Ci-2]*
         //                           |
 		//                       *[R-Tr-2]*
-		expectedPoints = (2 + 2 + 2) + (3 + 4);
+		expectedPoints = ((2 + 2 + 2) + (3 + 4)) * 2 /*one lot*/;
 		actualPoints = grid.addLine(
 				new LineItem(Card.wildcard(), 1, 2),
 				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 2), 2, 2),
@@ -282,7 +286,7 @@ public class GridTest {
 		//                       *[R-Tr-2]*
         //                           |
 		//                       *[R-Sq-2]*
-		expectedPoints = (2 + 2 + 2 + 2);
+		expectedPoints = (2 + 2 + 2 + 2) * 2 /*one lot*/;
 		actualPoints = grid.addLine(
 				new LineItem(Card.newCard(Color.RED, Shape.SQUARE, 2), 3, 2),
 				new LineItem(Card.newCard(Color.RED, Shape.TRIANGLE, 2), 2, 2),
@@ -325,7 +329,7 @@ public class GridTest {
 	}
 	
 	@Test
-	public void fourLineCardDoublesPoints() {
+	public void fourLineCardDoublesThePoints() {
 		// [B-Sq-1] - [B-Ci-2]
 		Grid grid = new Grid();
 		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
@@ -333,13 +337,96 @@ public class GridTest {
 
 		// [G-Sq-2] - [G-Ci-3] - [  WC  ] - [G-Cr-4]
 		// [B-Sq-1] - [B-Ci-2]
-		int expectedPoints = ((2 + 1) + (3 + 2) + (2 + 3 + 0 + 4)) * 2;
+		int expectedPoints = ((2 + 1) + (3 + 2) + (2 + 3 + 0 + 4)) * 2 /*one lot*/
+				* 2 /*four-card line*/;
 		int actualPoints = grid.addLine(
 				new LineItem(Card.newCard(Color.GREEN, Shape.SQUARE, 2), -1, 0),
 				new LineItem(Card.newCard(Color.GREEN, Shape.CIRCLE, 3), -1, 1),
 				new LineItem(Card.wildcard(), -1, 2),
 				new LineItem(Card.newCard(Color.GREEN, Shape.CROSS, 4), -1, 3));
 		assertEquals(expectedPoints, actualPoints);
+	}
+	
+	@Test
+	public void eachLotDoublesThePoints() {
+		// [B-Sq-1] - [B-Ci-2]
+		// [G-Sq-2] - [G-Ci-3]
+		// [R-Sq-3] - [R-Ci-1]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addLine(new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 1));
+		grid.addLine(LineBuilder.horizontal(
+				Card.newCard(Color.GREEN, Shape.SQUARE, 2), 1, 0)
+				.add(Color.GREEN, Shape.CIRCLE, 3)
+				.build());
+		grid.addLine(LineBuilder.horizontal(
+				Card.newCard(Color.RED, Shape.SQUARE, 3), 2, 0)
+				.add(Color.RED, Shape.CIRCLE, 1)
+				.build());
+
+		// [B-Sq-1] - [B-Ci-2]
+		// [G-Sq-2] - [G-Ci-3]
+		// [R-Sq-3] - [R-Ci-1]
+		// [B-Sq-4] - [  WC  ] - [Y-CR-4]
+		int expectedPoints = ((1 + 2 + 3 + 4) + (2 + 3 + 1) + (4 + 0 + 4)) * 2 * 2;
+		int actualPoints = grid.addLine(LineBuilder.horizontal(
+				Card.newCard(Color.BLUE, Shape.SQUARE, 4), 3, 0)
+				.wildcard()
+				.add(Color.YELLOW, Shape.CROSS, 4)
+				.build());
+		assertEquals(expectedPoints, actualPoints);
+	}
+	
+	
+	/**
+	 * Utility class that builds a line left-to-right or top-to-bottom.
+	 */
+	private static class LineBuilder {
+		
+		private final Orientation orientation;
+		
+		private final List<LineItem> items = new ArrayList<>();
+		
+		private LineBuilder(Orientation orientation) {
+			this.orientation = orientation;
+		}
+		
+		public static LineBuilder horizontal(Card firstCard, int row, int col) {
+			return start(Orientation.HORIZONTAL, firstCard, row, col);
+		}
+		
+		public static LineBuilder vertical(Card firstCard, int row, int col) {
+			return start(Orientation.VERTICAL, firstCard, row, col);
+		}
+		
+		public static LineBuilder start(Orientation orientation,
+				   Card firstCard, int row, int col) {
+			LineBuilder b = new LineBuilder(orientation);
+			b.items.add(new LineItem(firstCard, row, col));
+			return b;
+		}
+		
+		public LineBuilder add(Color color, Shape shape, int faceValue) {
+			return add(Card.newCard(color, shape, faceValue));
+		}
+		
+		public LineBuilder wildcard() {
+			return add(Card.wildcard());
+		}
+		
+		public LineBuilder add(Card card) {
+			checkState(!items.isEmpty());
+			Position lastPos = items.get(items.size() - 1).getPosition();
+			Position nextPos = (orientation == Orientation.HORIZONTAL)
+					? lastPos.rightOf()
+					: lastPos.below();
+			items.add(new LineItem(card, nextPos));
+			return this;
+		}
+		
+		public List<LineItem> build() {
+			return items;
+		}
 	}
 	
 }

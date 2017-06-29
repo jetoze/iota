@@ -55,7 +55,7 @@ public final class Grid {
 	 * @throws InvalidLineException
 	 *             if the line is not valid.
 	 */
-	public int addLine(LineItem... cards) throws InvalidLineException {
+	public int addLine(List<LineItem> cards) throws InvalidLineException {
 		checkPreReqs(cards);
 		List<NewCardEffect> effects = new ArrayList<>();
 		List<LineItem> remainingCards = Lists.newArrayList(cards);
@@ -84,15 +84,30 @@ public final class Grid {
 			}
 		}
 		int points = pointGeneratingLines.getPoints();
-		if (cards.length == Constants.MAX_LINE_LENGTH) {
+		if (cards.size() == Constants.MAX_LINE_LENGTH) {
 			points *= 2;
 		}
 		return points;
 	}
+	
+	/**
+	 * Adds a new line to the grid, and returns the number of points it
+	 * generated.
+	 * 
+	 * @param cards
+	 *            the cards to add.
+	 * @return the number of points. This is the sum of the face values of call
+	 *         cards in each line either created or extended by this operation.
+	 * @throws InvalidLineException
+	 *             if the line is not valid.
+	 */
+	public int addLine(LineItem... cards) throws InvalidLineException {
+		return addLine(Arrays.asList(cards));
+	}
 
-	private static void checkPreReqs(LineItem... cards) throws InvalidLineException {
+	private static void checkPreReqs(List<LineItem> cards) throws InvalidLineException {
 		try {
-			checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
+			checkArgument(cards.size() > 0 && cards.size() <= Constants.MAX_LINE_LENGTH);
 			Orientation.validatePoints(cards);
 		} catch (IllegalArgumentException e) {
 			throw new InvalidLineException(e.getMessage(), e);
@@ -364,9 +379,13 @@ public final class Grid {
 		}
 		
 		public int getPoints() {
-			return lines.values().stream()
+			int base = lines.values().stream()
 					.mapToInt(Line::getFaceValue)
 					.sum();
+			long lots = lines.values().stream()
+					.filter(Line::isLot)
+					.count();
+			return (int) (base * Math.pow(2, lots));
 		}
 
 		public AffectedLines add(AffectedLines other) {
