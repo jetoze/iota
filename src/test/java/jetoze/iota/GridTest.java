@@ -310,4 +310,18 @@ public class GridTest {
 		}
 	}
 	
+	@Test
+	public void lineCanBeAddedToFromBothSides() {
+		// [B-Sq-1]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		
+		// *[B-Cr-2]* - [B-Sq-1] - *[B-Tr-2]*
+		int expectedPoints = 2 + 1 + 2;
+		int actualPoints = grid.addLine(
+				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, -1),
+				new LineItem(Card.newCard(Color.BLUE, Shape.TRIANGLE, 2), 0, 1));
+		assertEquals(expectedPoints, actualPoints);
+	}
+	
 }
