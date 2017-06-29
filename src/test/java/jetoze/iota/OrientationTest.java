@@ -1,6 +1,8 @@
 package jetoze.iota;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,25 +52,19 @@ public final class OrientationTest {
 	}
 	
 	@Test
-	public void detectInvalidLine() {
-		try {
-			Orientation.of(Arrays.asList(
+	public void gapsAreOk() {
+		assertEquals(Orientation.HORIZONTAL, Orientation.of(Arrays.asList(
 					new Position(0, 0),
 					new Position(0, 1),
-					new Position(0, 3)));
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue("expected", true);
-		}
-		try {
-			Orientation.of(Arrays.asList(
+					new Position(0, 3))));
+		assertEquals(Orientation.VERTICAL, Orientation.of(Arrays.asList(
 					new Position(0, 0),
 					new Position(1, 0),
-					new Position(3, 0)));
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue("expected", true);
-		}
+					new Position(3, 0))));
+	}
+	
+	@Test
+	public void detectInvalidLine() {
 		try {
 			Orientation.of(Arrays.asList(
 					new Position(0, 0),
@@ -79,6 +75,5 @@ public final class OrientationTest {
 			assertTrue("expected", true);
 		}
 	}
-	
 	
 }
