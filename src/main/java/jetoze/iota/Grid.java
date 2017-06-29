@@ -83,7 +83,11 @@ public final class Grid {
 				throw new InvalidLineException();
 			}
 		}
-		return pointGeneratingLines.getPoints();
+		int points = pointGeneratingLines.getPoints();
+		if (cards.length == Constants.MAX_LINE_LENGTH) {
+			points *= 2;
+		}
+		return points;
 	}
 
 	private static void checkPreReqs(LineItem... cards) throws InvalidLineException {

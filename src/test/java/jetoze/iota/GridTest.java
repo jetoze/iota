@@ -324,4 +324,22 @@ public class GridTest {
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
+	@Test
+	public void fourLineCardDoublesPoints() {
+		// [B-Sq-1] - [B-Ci-2]
+		Grid grid = new Grid();
+		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.addLine(new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 1));
+
+		// [G-Sq-2] - [G-Ci-3] - [  WC  ] - [G-Cr-4]
+		// [B-Sq-1] - [B-Ci-2]
+		int expectedPoints = ((2 + 1) + (3 + 2) + (2 + 3 + 0 + 4)) * 2;
+		int actualPoints = grid.addLine(
+				new LineItem(Card.newCard(Color.GREEN, Shape.SQUARE, 2), -1, 0),
+				new LineItem(Card.newCard(Color.GREEN, Shape.CIRCLE, 3), -1, 1),
+				new LineItem(Card.wildcard(), -1, 2),
+				new LineItem(Card.newCard(Color.GREEN, Shape.CROSS, 4), -1, 3));
+		assertEquals(expectedPoints, actualPoints);
+	}
+	
 }
