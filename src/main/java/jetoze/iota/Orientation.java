@@ -2,8 +2,9 @@ package jetoze.iota;import static com.google.common.base.Preconditions.checkArgu
 import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Set;
 
 public enum Orientation {
 
@@ -32,8 +33,8 @@ public enum Orientation {
 
 	public static Orientation of(List<Position> positions) {
 		checkArgument(positions.size() >= 2);
-		TreeSet<Integer> rows = new TreeSet<>();
-		TreeSet<Integer> cols = new TreeSet<>();
+		Set<Integer> rows = new HashSet<>();
+		Set<Integer> cols = new HashSet<>();
 		for (Position p : positions) {
 			rows.add(p.row);
 			cols.add(p.col);
@@ -42,11 +43,10 @@ public enum Orientation {
 			throw new IllegalArgumentException("Not a line");
 		}
 		if (rows.size() == 1) {
-			checkArgument(cols.last() - cols.first() == cols.size() - 1, "Gaps are not allowed");
+			assert cols.size() > 1;
 			return HORIZONTAL;
 		} else {
 			assert cols.size() == 1;
-			checkArgument(rows.last() - rows.first() == rows.size() - 1, "Gaps are not allowed");
 			return VERTICAL;
 		}
 	}
