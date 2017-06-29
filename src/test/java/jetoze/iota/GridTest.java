@@ -245,7 +245,7 @@ public class GridTest {
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = InvalidLineException.class)
 	public void addedLineMustInFactBeALine() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
@@ -303,7 +303,7 @@ public class GridTest {
 					new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 4), 0, 2),
 					new LineItem(Card.newCard(Color.YELLOW, Shape.TRIANGLE, 1), 0, 3));
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (InvalidLineException e) {
 			int expectedNumberOfCards = 2;
 			int actualNumberOfCards = grid.getNumberOfCards();
 			assertEquals(expectedNumberOfCards, actualNumberOfCards);

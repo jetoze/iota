@@ -35,15 +35,28 @@ public final class Grid {
 		return grid.size();
 	}
 	
+	/**
+	 * Checks if the given card can be placed in the given position on the grid.
+	 */
 	public boolean isCardAllowed(Card card, int row, int col) {
 		checkNotNull(card);
 		NewCardEffect e = new NewCardEffect(card, new Position(row, col));
 		return e.isValid();
 	}
 	
-	public int addLine(LineItem... cards) {
-		checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
-		Orientation.validatePoints(cards);
+	/**
+	 * Adds a new line to the grid, and returns the number of points it
+	 * generated.
+	 * 
+	 * @param cards
+	 *            the cards to add.
+	 * @return the number of points. This is the sum of the face values of call
+	 *         cards in each line either created or extended by this operation.
+	 * @throws InvalidLineException
+	 *             if the line is not valid.
+	 */
+	public int addLine(LineItem... cards) throws InvalidLineException {
+		checkPreReqs(cards);
 		List<NewCardEffect> effects = new ArrayList<>();
 		List<LineItem> remainingCards = Lists.newArrayList(cards);
 		AffectedLines pointGeneratingLines = new AffectedLines();
@@ -62,14 +75,24 @@ public final class Grid {
 				}
 			}
 			if (!cardWasAdded) {
-				// Rollback
+				// At least one card in the line cannot be added, i.e. the line is not valid.
+				// Rollback any changes that's been made to the grid, and throw an exception.
 				for (NewCardEffect e : effects) {
 					e.rollback();
 				}
-				throw new IllegalArgumentException("Not connected to the grid.");
+				throw new InvalidLineException();
 			}
 		}
 		return pointGeneratingLines.getPoints();
+	}
+
+	private static void checkPreReqs(LineItem... cards) throws InvalidLineException {
+		try {
+			checkArgument(cards.length > 0 && cards.length <= Constants.MAX_LINE_LENGTH);
+			Orientation.validatePoints(cards);
+		} catch (IllegalArgumentException e) {
+			throw new InvalidLineException(e.getMessage(), e);
+		}
 	}
 	
 	@Nullable
