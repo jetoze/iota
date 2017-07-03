@@ -97,7 +97,7 @@ public class CardUi extends JComponent {
 			break;
 		case CROSS: {
 			int innerMargin = 6;
-			int protrusion = 20;
+			int protrusion = UiConstants.CROSS_PROTRUSION;
 			fillCross(g, outerMargin + innerMargin,
 					outerMargin + innerMargin,
 					getWidth() - 2 * (outerMargin + innerMargin),
@@ -310,8 +310,7 @@ public class CardUi extends JComponent {
 			break;
 		case CROSS: {
 			int x = (getWidth() - size) / 2;
-			// Lift up the markers slightly, for a better result visually
-			int y = (getHeight() - size) / 2 - 2;
+			int y = (getHeight() - size) / 2 - 4;
 			int protrusion = 3;
 			fillCross(g, x, y - space / 2, size, protrusion);
 			fillCross(g, x - space / 2, y + space / 2, size, protrusion);
@@ -344,9 +343,8 @@ public class CardUi extends JComponent {
 			}
 			break;
 		case TRIANGLE: {
-			space += 4;
 			int x = getWidth() / 2 - space / 2 - size;
-			int y = (getHeight() - size) / 2 + 8;
+			int y = (getHeight() - size) / 2 + 5;
 			fillTriangle(g, x, y, size, size, Direction.LEFT);
 			fillTriangle(g, x + (space + size) / 2, y - space / 2 - size / 2, size, size, Direction.UP);
 			fillTriangle(g, x + (space + size) / 2, y + space / 2 + size / 2, size, size, Direction.DOWN);

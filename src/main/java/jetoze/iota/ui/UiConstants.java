@@ -8,15 +8,17 @@ import jetoze.iota.Constants.Shape;
 
 public final class UiConstants {
 
-	public static final int CARD_SIZE = 100;
+	public static final int CARD_SIZE = 80;
 	
-	public static final int FACE_VALUE_MARKER_GAP = 16;
+	public static final int FACE_VALUE_MARKER_GAP = 14;
 	
 	// The number 50 is based on a back-of-an-envelope calculation, using the
 	// standard setup of 64 + 2 (wild) cards.
 	public static final int NUMBER_OF_CELLS_PER_SIDE_IN_GRID = 50;
 	
 	public static final int GRID_CELL_MARGIN = 2;
+	
+	public static final int CROSS_PROTRUSION = 16;
 	
 	private static final EnumMap<Color, java.awt.Color> CARD_COLORS = new EnumMap<>(Color.class);
 	static {
