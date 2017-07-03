@@ -1,5 +1,6 @@
 package jetoze.iota.ui;
 
+import static jetoze.iota.ui.UiConstants.*;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -24,15 +25,14 @@ public final class UiTestDriver {
 		
 		int row = 0;
 		int col = 0;
-		int cardSize = 100;
 		int margin = 10;
 		for (Color c : Color.values()) {
 			for (Shape s : Shape.values()) {
 				for (int fv = Constants.MIN_FACE_VALUE; fv <= Constants.MAX_FACE_VALUE; ++fv) {
 					CardUi card = new CardUi(Card.newCard(c, s, fv));
 					canvas.add(card);
-					card.setSize(cardSize, cardSize);
-					card.setLocation(col * (cardSize + margin), row * (cardSize + margin));
+					card.setSize(CARD_SIZE, CARD_SIZE);
+					card.setLocation(col * (CARD_SIZE + margin), row * (CARD_SIZE + margin));
 					col++;
 					if (col == 8) {
 						col = 0;

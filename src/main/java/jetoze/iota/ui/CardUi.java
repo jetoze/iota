@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.GeneralPath;
 
 import javax.swing.JComponent;
 
@@ -41,9 +40,13 @@ public class CardUi extends JComponent {
 		Color cardColor = cc.getColor();
 		Shape cardShape = cc.getShape();
 		
+		// Border:
+		g.setColor(java.awt.Color.LIGHT_GRAY);
+		g.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+		
 		// White background
 		g.setColor(java.awt.Color.WHITE);
-		g.fillRoundRect(0, 0, getWidth(), getHeight(), 4, 4);
+		g.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 6, 6);
 		
 		// Black background
 		g.setColor(java.awt.Color.BLACK);
@@ -146,20 +149,51 @@ public class CardUi extends JComponent {
 			throw new AssertionError("Unexpected face value: " + faceValue);
 		}
 	}
-
+	
 	private void drawFaceValueOne(Graphics2D g, Shape cardShape) {
-		int space = 16;
+		int size = UiConstants.getFaceValueMarkerSize(cardShape);
 		switch (cardShape) {
 		case CIRCLE: {
-			int diameter = 8;
-			int x = (getWidth() - diameter - space) / 2;
-			int y = (getHeight() - diameter) / 2;
-			g.fillOval(x, y, diameter, diameter);
-			g.fillOval(x + space, y, diameter, diameter);
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillOval(x, y, size, size);
 			}
 			break;
 		case SQUARE: {
-			int size = 8;
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillRect(x, y, size, size);
+			}
+			break;
+		case TRIANGLE: {
+			int x = (getWidth() - size) / 2;
+			// Drawing the marker completely center looks wrong, so push it down a bit.
+			int y = 6 + (getHeight() - size) / 2;
+			fillTriangle(g, x, y, size, size);
+			}
+			break;
+		case CROSS: {
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			int protrusion = 3;
+			fillCross(g, x, y, size, protrusion);
+			}
+			break;
+		}
+	}
+	
+	private void drawFaceValueTwo(Graphics2D g, Shape cardShape) {
+		int space = UiConstants.FACE_VALUE_MARKER_GAP;
+		int size = UiConstants.getFaceValueMarkerSize(cardShape);
+		switch (cardShape) {
+		case CIRCLE: {
+			int x = (getWidth() - size - space) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillOval(x, y, size, size);
+			g.fillOval(x + space, y, size, size);
+			}
+			break;
+		case SQUARE: {
 			int x = (getWidth() - size - space) / 2;
 			int y = (getHeight() - size) / 2;
 			g.fillRect(x, y, size, size);
@@ -167,58 +201,19 @@ public class CardUi extends JComponent {
 			}
 			break;
 		case TRIANGLE: {
-			int width = 8;
-			int height = 8;
-			int x = (getWidth() - width - space) / 2;
+			int x = (getWidth() - size - space) / 2;
 			// Drawing the marker completely center looks wrong, so push it down a bit.
-			int y = 6 + (getHeight() - height) / 2;
-			fillTriangle(g, x, y, width, height);
-			fillTriangle(g, x + space, y, width, height);
+			int y = 6 + (getHeight() - size) / 2;
+			fillTriangle(g, x, y, size, size);
+			fillTriangle(g, x + space, y, size, size);
 			}
 			break;
 		case CROSS: {
-			int size = 10;
 			int x = (getWidth() - size - space) / 2;
 			int y = (getHeight() - size) / 2;
 			int protrusion = 3;
 			fillCross(g, x, y, size, protrusion);
 			fillCross(g, x + space, y, size, protrusion);
-			}
-			break;
-		}
-	}
-	
-	private void drawFaceValueTwo(Graphics2D g, Shape cardShape) {
-		switch (cardShape) {
-		case CIRCLE: {
-			int diameter = 8;
-			int x = (getWidth() - diameter) / 2;
-			int y = (getHeight() - diameter) / 2;
-			g.fillOval(x, y, diameter, diameter);
-			}
-			break;
-		case SQUARE: {
-			int size = 8;
-			int x = (getWidth() - size) / 2;
-			int y = (getHeight() - size) / 2;
-			g.fillRect(x, y, size, size);
-			}
-			break;
-		case TRIANGLE: {
-			int width = 8;
-			int height = 8;
-			int x = (getWidth() - width) / 2;
-			// Drawing the marker completely center looks wrong, so push it down a bit.
-			int y = 6 + (getHeight() - height) / 2;
-			fillTriangle(g, x, y, width, height);
-			}
-			break;
-		case CROSS: {
-			int size = 10;
-			int x = (getWidth() - size) / 2;
-			int y = (getHeight() - size) / 2;
-			int protrusion = 3;
-			fillCross(g, x, y, size, protrusion);
 			}
 			break;
 		}
