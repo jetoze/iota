@@ -35,6 +35,8 @@ public final class UiTestDriver {
 				}
 			}
 		}
+		gridUi.addCard(new CardUi(Card.wildcard()), -1, -1);
+		gridUi.addCard(new CardUi(Card.wildcard()), 8, 8);
 
 //		int gridLength = 8 * (CARD_SIZE + margin) + margin;
 //		canvas.setPreferredSize(new Dimension(gridLength, gridLength));

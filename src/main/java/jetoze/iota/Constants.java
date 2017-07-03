@@ -12,6 +12,8 @@ public final class Constants {
 	
 	public static final int MAX_FACE_VALUE = MAX_LINE_LENGTH;
 	
+	public static final int NUMBER_OF_WILDCARDS = 2;
+	
 	public static enum Color {
 		
 		RED, GREEN, BLUE, YELLOW

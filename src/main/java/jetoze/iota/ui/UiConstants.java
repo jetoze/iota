@@ -23,6 +23,8 @@ public final class UiConstants {
 	public static final int FACE_VALUE_MARKER_GAP = 14;
 	
 	public static final int CROSS_PROTRUSION = 16;
+
+	public static final int INNER_WILDCARD_MARGIN = 8;
 	
 	public static final java.awt.Color GRID_COLOR = java.awt.Color.BLACK;
 	

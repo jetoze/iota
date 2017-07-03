@@ -148,6 +148,11 @@ public abstract class Card {
 		public Set<Object> match(Set<Object> properties) {
 			return new HashSet<>(properties);
 		}
+		
+		@Override
+		public String toString() {
+			return "Wildcard";
+		}
 	}
 	
 }
