@@ -58,7 +58,7 @@ public abstract class Card {
 	}
 	
 	
-	private static final class ConcreteCard extends Card {
+	public static final class ConcreteCard extends Card {
 
 		private final Color color;
 
@@ -76,6 +76,14 @@ public abstract class Card {
 		@Override
 		public int getFaceValue() {
 			return faceValue;
+		}
+
+		public Color getColor() {
+			return color;
+		}
+
+		public Shape getShape() {
+			return shape;
 		}
 
 		@Override
