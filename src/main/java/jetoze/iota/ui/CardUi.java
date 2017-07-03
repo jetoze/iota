@@ -142,6 +142,7 @@ public class CardUi extends JComponent {
 			drawFaceValueTwo(g, cardShape);
 			break;
 		case 3:
+			drawFaceValueThree(g, cardShape);
 			break;
 		case 4:
 			break;
@@ -214,6 +215,48 @@ public class CardUi extends JComponent {
 			int protrusion = 3;
 			fillCross(g, x, y, size, protrusion);
 			fillCross(g, x + space, y, size, protrusion);
+			}
+			break;
+		}
+	}
+	
+	private void drawFaceValueThree(Graphics2D g, Shape cardShape) {
+		int space = UiConstants.FACE_VALUE_MARKER_GAP;
+		int size = UiConstants.getFaceValueMarkerSize(cardShape);
+		switch (cardShape) {
+		case CIRCLE: {
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillOval(x - space / 2, y - space / 2, size, size);
+			g.fillOval(x + space / 2, y - space / 2, size, size);
+			g.fillOval(x, y + space / 2, size, size);
+			}
+			break;
+		case SQUARE: {
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillRect(x, y - space / 2, size, size);
+			g.fillRect(x - space / 2, y + space / 2, size, size);
+			g.fillRect(x + space / 2, y + space / 2, size, size);
+			}
+			break;
+		case TRIANGLE: {
+			int x = (getWidth() - size) / 2;
+			// Drawing the marker completely center looks wrong, so push it down a bit.
+			int y = 6 + (getHeight() - size) / 2;
+			fillTriangle(g, x, y - space / 2, size, size);
+			fillTriangle(g, x - space / 2, y + space / 2, size, size);
+			fillTriangle(g, x + space / 2, y + space / 2, size, size);
+			}
+			break;
+		case CROSS: {
+			int x = (getWidth() - size) / 2;
+			// Lift up the markers slightly, for a better result visually
+			int y = (getHeight() - size) / 2 - 2;
+			int protrusion = 3;
+			fillCross(g, x, y - space / 2, size, protrusion);
+			fillCross(g, x - space / 2, y + space / 2, size, protrusion);
+			fillCross(g, x + space / 2, y + space / 2, size, protrusion);
 			}
 			break;
 		}
