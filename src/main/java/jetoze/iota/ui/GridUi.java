@@ -47,8 +47,10 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	}
 	
 	private static Point locationOf(Position pos) {
-		int x = UiConstants.GRID_CELL_MARGIN + pos.col * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
-		int y = UiConstants.GRID_CELL_MARGIN + pos.row * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
+		int x = UiConstants.GRID_CELL_MARGIN + pos.col * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN)
+				+ UiConstants.GRID_CELL_MARGIN / 2;
+		int y = UiConstants.GRID_CELL_MARGIN + pos.row * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN)
+				+ UiConstants.GRID_CELL_MARGIN / 2;
 		return new Point(x, y);
 	}
 	
@@ -79,7 +81,7 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Color saved = g.getColor();
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(UiConstants.GRID_COLOR);
 		for (int row = 1; row < UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID; ++row) {
 			int y = UiConstants.GRID_CELL_MARGIN + row * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
 			g.drawLine(

@@ -30,11 +30,13 @@ public class CardUi extends JComponent {
 	@Override
 	public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g.create();
 		if (card.isWildcard()) {
-			paintWildcard((Graphics2D) g);
+			paintWildcard(g2);
 		} else {
-			paintConcreteCard((Graphics2D) g);
+			paintConcreteCard(g2);
 		}
+		g2.dispose();
 	}
 	
 	private void paintWildcard(Graphics2D g) {
@@ -48,7 +50,7 @@ public class CardUi extends JComponent {
 		Shape cardShape = cc.getShape();
 		
 		// Border:
-		g.setColor(java.awt.Color.LIGHT_GRAY);
+		g.setColor(UiConstants.CARD_BORDER_COLOR);
 		g.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
 		
 		// White background
@@ -57,7 +59,7 @@ public class CardUi extends JComponent {
 		
 		// Black background
 		g.setColor(java.awt.Color.BLACK);
-		int outerMargin = 8;
+		int outerMargin = UiConstants.OUTER_CARD_MARGIN;
 		g.fillRect(outerMargin, outerMargin, getWidth() - 2 * outerMargin, getHeight() - 2 * outerMargin);
 		
 		drawShape(g, cardColor, cardShape, outerMargin);
@@ -68,7 +70,7 @@ public class CardUi extends JComponent {
 		UiConstants.applyCardColor(g, cardColor);
 		switch (cardShape) {
 		case CIRCLE: {
-			int innerMargin = 6;
+			int innerMargin = UiConstants.INNER_CARD_MARGIN;
 			g.fillOval(
 					outerMargin + innerMargin,
 					outerMargin + innerMargin,
@@ -77,7 +79,7 @@ public class CardUi extends JComponent {
 		}
 			break;
 		case SQUARE: {
-			int innerMargin = 8;
+			int innerMargin = UiConstants.INNER_CARD_MARGIN;
 			g.fillRect(
 					outerMargin + innerMargin,
 					outerMargin + innerMargin,
@@ -86,8 +88,8 @@ public class CardUi extends JComponent {
 		}
 			break;
 		case TRIANGLE: {
-			int innerMarginH = 4;
-			int innerMarginV = 8;
+			int innerMarginH = UiConstants.INNER_CARD_MARGIN - 2;
+			int innerMarginV = UiConstants.INNER_CARD_MARGIN + 2;
 			fillTriangle(g,
 					outerMargin + innerMarginH,
 					outerMargin + innerMarginV,
@@ -96,7 +98,7 @@ public class CardUi extends JComponent {
 			}
 			break;
 		case CROSS: {
-			int innerMargin = 6;
+			int innerMargin = UiConstants.INNER_CARD_MARGIN;
 			int protrusion = UiConstants.CROSS_PROTRUSION;
 			fillCross(g, outerMargin + innerMargin,
 					outerMargin + innerMargin,
@@ -344,7 +346,7 @@ public class CardUi extends JComponent {
 			break;
 		case TRIANGLE: {
 			int x = getWidth() / 2 - space / 2 - size;
-			int y = (getHeight() - size) / 2 + 5;
+			int y = (getHeight() - size) / 2 + 7;
 			fillTriangle(g, x, y, size, size, Direction.LEFT);
 			fillTriangle(g, x + (space + size) / 2, y - space / 2 - size / 2, size, size, Direction.UP);
 			fillTriangle(g, x + (space + size) / 2, y + space / 2 + size / 2, size, size, Direction.DOWN);
