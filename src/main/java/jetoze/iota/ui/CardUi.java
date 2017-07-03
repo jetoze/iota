@@ -2,6 +2,7 @@ package jetoze.iota.ui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -18,6 +19,12 @@ public class CardUi extends JComponent {
 	
 	public CardUi(Card card) {
 		this.card = checkNotNull(card);
+		setSize(UiConstants.CARD_SIZE, UiConstants.CARD_SIZE);
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return getSize();
 	}
 	
 	@Override
@@ -358,7 +365,6 @@ public class CardUi extends JComponent {
 			break;
 		}
 	}
-	
 	
 	private static enum Direction {
 		

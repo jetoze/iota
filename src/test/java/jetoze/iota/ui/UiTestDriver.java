@@ -1,17 +1,15 @@
 package jetoze.iota.ui;
 
-import static jetoze.iota.ui.UiConstants.*;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import jetoze.iota.Card;
 import jetoze.iota.Constants;
 import jetoze.iota.Constants.Color;
 import jetoze.iota.Constants.Shape;
+import jetoze.iota.Position;
 
 public final class UiTestDriver {
 
@@ -20,19 +18,15 @@ public final class UiTestDriver {
 	}
 	
 	public static void publish() {
-		JPanel canvas = new JPanel();
-		canvas.setLayout(null);
+		GridUi gridUi = new GridUi();
 		
 		int row = 0;
 		int col = 0;
-		int margin = 10;
 		for (Color c : Color.values()) {
 			for (Shape s : Shape.values()) {
 				for (int fv = Constants.MIN_FACE_VALUE; fv <= Constants.MAX_FACE_VALUE; ++fv) {
 					CardUi card = new CardUi(Card.newCard(c, s, fv));
-					canvas.add(card);
-					card.setSize(CARD_SIZE, CARD_SIZE);
-					card.setLocation(margin / 2 + col * (CARD_SIZE + margin), margin / 2 + row * (CARD_SIZE + margin));
+					gridUi.addCard(card, row, col);
 					col++;
 					if (col == 8) {
 						col = 0;
@@ -42,13 +36,17 @@ public final class UiTestDriver {
 			}
 		}
 
-		int gridLength = 8 * (CARD_SIZE + margin) + margin;
-		canvas.setPreferredSize(new Dimension(gridLength, gridLength));
+//		int gridLength = 8 * (CARD_SIZE + margin) + margin;
+//		canvas.setPreferredSize(new Dimension(gridLength, gridLength));
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().add(new JScrollPane(canvas));
-		frame.pack();
+		JScrollPane scrollPane = new JScrollPane(gridUi);
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
+		frame.getContentPane().add(scrollPane);
+		frame.setSize(1000, 1000);
 		frame.setVisible(true);
+		gridUi.scrollToVisible(new Position(0, 0), new Position(8, 8));
 	}
 
 }
