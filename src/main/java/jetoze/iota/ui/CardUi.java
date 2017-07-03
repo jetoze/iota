@@ -132,11 +132,11 @@ public class CardUi extends JComponent {
 	private void drawFaceValue(Graphics2D g, int faceValue, Shape cardShape) {
 		g.setColor(java.awt.Color.WHITE);
 		switch (faceValue) {
-		case 1: {
+		case 1:
 			drawFaceValueOne(g, cardShape);
-		}
 			break;
 		case 2:
+			drawFaceValueTwo(g, cardShape);
 			break;
 		case 3:
 			break;
@@ -148,6 +148,47 @@ public class CardUi extends JComponent {
 	}
 
 	private void drawFaceValueOne(Graphics2D g, Shape cardShape) {
+		int space = 16;
+		switch (cardShape) {
+		case CIRCLE: {
+			int diameter = 8;
+			int x = (getWidth() - diameter - space) / 2;
+			int y = (getHeight() - diameter) / 2;
+			g.fillOval(x, y, diameter, diameter);
+			g.fillOval(x + space, y, diameter, diameter);
+			}
+			break;
+		case SQUARE: {
+			int size = 8;
+			int x = (getWidth() - size - space) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillRect(x, y, size, size);
+			g.fillRect(x + space, y, size, size);
+			}
+			break;
+		case TRIANGLE: {
+			int width = 8;
+			int height = 8;
+			int x = (getWidth() - width - space) / 2;
+			// Drawing the marker completely center looks wrong, so push it down a bit.
+			int y = 6 + (getHeight() - height) / 2;
+			fillTriangle(g, x, y, width, height);
+			fillTriangle(g, x + space, y, width, height);
+			}
+			break;
+		case CROSS: {
+			int size = 10;
+			int x = (getWidth() - size - space) / 2;
+			int y = (getHeight() - size) / 2;
+			int protrusion = 3;
+			fillCross(g, x, y, size, protrusion);
+			fillCross(g, x + space, y, size, protrusion);
+			}
+			break;
+		}
+	}
+	
+	private void drawFaceValueTwo(Graphics2D g, Shape cardShape) {
 		switch (cardShape) {
 		case CIRCLE: {
 			int diameter = 8;
@@ -182,5 +223,5 @@ public class CardUi extends JComponent {
 			break;
 		}
 	}
-	
+
 }
