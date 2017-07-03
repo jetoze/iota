@@ -50,8 +50,8 @@ public class CardUi extends JComponent {
 		int outerMargin = 8;
 		g.fillRect(outerMargin, outerMargin, getWidth() - 2 * outerMargin, getHeight() - 2 * outerMargin);
 		
-		// Shape
 		drawShape(g, cardColor, cardShape, outerMargin);
+		drawFaceValue(g, faceValue, cardShape);
 	}
 
 	private void drawShape(Graphics2D g, Color cardColor, Shape cardShape, int outerMargin) {
@@ -78,38 +78,108 @@ public class CardUi extends JComponent {
 		case TRIANGLE: {
 			int innerMarginH = 4;
 			int innerMarginV = 8;
-			int[] xValues = new int[] { 
-					getWidth() / 2, 
-					outerMargin + innerMarginH, 
-					getWidth() - (outerMargin + innerMarginH) };
-			int[] yValues = new int[] { 
-					outerMargin + innerMarginV, 
-					getHeight() - (outerMargin + innerMarginV),
-					getHeight() - (outerMargin + innerMarginV) };
-			g.fillPolygon(xValues, yValues, 3);
+			fillTriangle(g,
+					outerMargin + innerMarginH,
+					outerMargin + innerMarginV,
+					getWidth() - 2 * (outerMargin + innerMarginH),
+					getHeight() - 2 * (outerMargin + innerMarginV));
 			}
 			break;
 		case CROSS: {
 			int innerMargin = 6;
 			int protrusion = 20;
-			int thickness = getWidth() - 2 * (outerMargin + innerMargin + protrusion);
-			// Horizontal leg
-			g.fillRect(
+			fillCross(g, outerMargin + innerMargin,
 					outerMargin + innerMargin,
-					outerMargin + innerMargin + protrusion,
-					getWidth() - 2 * (outerMargin + innerMargin), 
-					thickness);
-			// Vertical leg
-			g.fillRect(
-					outerMargin + innerMargin + protrusion,
-					outerMargin + innerMargin,
-					thickness,
-					getHeight() - 2 * (outerMargin + innerMargin)
-					);
+					getWidth() - 2 * (outerMargin + innerMargin),
+					protrusion);
 		}
 		break;
 		default:
-			throw new AssertionError(cardShape.name());
+			throw new AssertionError("Unexpected shape: " + cardShape.name());
+		}
+	}
+	
+	private void fillTriangle(Graphics2D g, int x, int y, int width, int height) {
+		int[] xPoints = new int[] {
+				x,
+				x + width / 2,
+				x + width
+		};
+		int yPoints[] = new int[] {
+				y + height,
+				y,
+				y + height
+		};
+		g.fillPolygon(xPoints, yPoints, 3);
+	}
+	
+	private void fillCross(Graphics2D g, int x, int y, int size, int protrusion) {
+		// Horizontal leg
+		g.fillRect(
+				x,
+				y + protrusion,
+				size, 
+				size - 2 * protrusion);
+		// Vertical leg
+		g.fillRect(
+				x + protrusion,
+				y,
+				size - 2 * protrusion,
+				size);
+	}
+	
+	
+	private void drawFaceValue(Graphics2D g, int faceValue, Shape cardShape) {
+		g.setColor(java.awt.Color.WHITE);
+		switch (faceValue) {
+		case 1: {
+			drawFaceValueOne(g, cardShape);
+		}
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		default:
+			throw new AssertionError("Unexpected face value: " + faceValue);
+		}
+	}
+
+	private void drawFaceValueOne(Graphics2D g, Shape cardShape) {
+		switch (cardShape) {
+		case CIRCLE: {
+			int diameter = 8;
+			int x = (getWidth() - diameter) / 2;
+			int y = (getHeight() - diameter) / 2;
+			g.fillOval(x, y, diameter, diameter);
+			}
+			break;
+		case SQUARE: {
+			int size = 8;
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			g.fillRect(x, y, size, size);
+			}
+			break;
+		case TRIANGLE: {
+			int width = 8;
+			int height = 8;
+			int x = (getWidth() - width) / 2;
+			// Drawing the marker completely center looks wrong, so push it down a bit.
+			int y = 6 + (getHeight() - height) / 2;
+			fillTriangle(g, x, y, width, height);
+			}
+			break;
+		case CROSS: {
+			int size = 10;
+			int x = (getWidth() - size) / 2;
+			int y = (getHeight() - size) / 2;
+			int protrusion = 3;
+			fillCross(g, x, y, size, protrusion);
+			}
+			break;
 		}
 	}
 	
