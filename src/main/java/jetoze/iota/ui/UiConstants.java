@@ -17,7 +17,7 @@ public final class UiConstants {
 		CARD_COLORS.put(Color.RED, java.awt.Color.RED);
 		CARD_COLORS.put(Color.GREEN, java.awt.Color.GREEN.darker());
 		CARD_COLORS.put(Color.BLUE, new java.awt.Color(30, 144, 255));
-		CARD_COLORS.put(Color.YELLOW, java.awt.Color.ORANGE);
+		CARD_COLORS.put(Color.YELLOW, new java.awt.Color(255, 165, 0));
 	}
 	
 	public static void applyCardColor(Graphics2D g, Color cardColor) {

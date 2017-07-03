@@ -32,7 +32,7 @@ public final class UiTestDriver {
 					CardUi card = new CardUi(Card.newCard(c, s, fv));
 					canvas.add(card);
 					card.setSize(CARD_SIZE, CARD_SIZE);
-					card.setLocation(col * (CARD_SIZE + margin), row * (CARD_SIZE + margin));
+					card.setLocation(margin / 2 + col * (CARD_SIZE + margin), margin / 2 + row * (CARD_SIZE + margin));
 					col++;
 					if (col == 8) {
 						col = 0;
