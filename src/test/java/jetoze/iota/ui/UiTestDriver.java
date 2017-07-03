@@ -42,7 +42,8 @@ public final class UiTestDriver {
 			}
 		}
 
-		canvas.setPreferredSize(new Dimension(1000, 1000));
+		int gridLength = 8 * (CARD_SIZE + margin) + margin;
+		canvas.setPreferredSize(new Dimension(gridLength, gridLength));
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(new JScrollPane(canvas));

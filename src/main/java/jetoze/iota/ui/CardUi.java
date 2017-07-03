@@ -145,6 +145,7 @@ public class CardUi extends JComponent {
 			drawFaceValueThree(g, cardShape);
 			break;
 		case 4:
+			drawFaceValueFour(g, cardShape);
 			break;
 		default:
 			throw new AssertionError("Unexpected face value: " + faceValue);
@@ -257,6 +258,62 @@ public class CardUi extends JComponent {
 			fillCross(g, x, y - space / 2, size, protrusion);
 			fillCross(g, x - space / 2, y + space / 2, size, protrusion);
 			fillCross(g, x + space / 2, y + space / 2, size, protrusion);
+			}
+			break;
+		}
+	}
+	
+	private void drawFaceValueFour(Graphics2D g, Shape cardShape) {
+		int space = UiConstants.FACE_VALUE_MARKER_GAP;
+		int size = UiConstants.getFaceValueMarkerSize(cardShape);
+		switch (cardShape) {
+		case CIRCLE: {
+			int x = getWidth() / 2 - space / 2 - size;
+			int y = (getHeight() - size) / 2;
+			g.fillOval(x, y, size, size);
+			g.fillOval(x + (space + size) / 2, y - space / 2 - size / 2, size, size);
+			g.fillOval(x + (space + size) / 2, y + space / 2 + size / 2, size, size);
+			g.fillOval(x + space + size, y, size, size);
+			}
+			break;
+		case SQUARE: {
+			int x = getWidth() / 2 - space / 2 - size;
+			int y = (getHeight() - size) / 2;
+			g.fillRect(x, y, size, size);
+			g.fillRect(x + (space + size) / 2, y - space / 2 - size / 2, size, size);
+			g.fillRect(x + (space + size) / 2, y + space / 2 + size / 2, size, size);
+			g.fillRect(x + space + size, y, size, size);
+			}
+			break;
+		case TRIANGLE: {
+			// TODO: Rotate the triangles.
+			int x = getWidth() / 2 - space / 2 - size;
+			int y = (getHeight() - size) / 2 + 6;
+			fillTriangle(g, x, y, size, size);
+			fillTriangle(g, x + (space + size) / 2, y - space / 2 - size / 2, size, size);
+			fillTriangle(g, x + (space + size) / 2, y + space / 2 + size / 2, size, size);
+			fillTriangle(g, x + space + size, y, size, size);
+			}
+			break;
+		case CROSS: {
+			int x = getWidth() / 2 - space / 2 - size;
+			int y = (getHeight() - size) / 2;
+			int protrusion = 3;
+			fillCross(g, x, y, size, protrusion);
+			fillCross(g, x + (space + size) / 2, y - space / 2 - size / 2, size, protrusion);
+			fillCross(g, x + (space + size) / 2, y + space / 2 + size / 2, size, protrusion);
+			fillCross(g, x + space + size, y, size, protrusion);
+
+			/*
+			int x = (getWidth() - size) / 2;
+			// Lift up the markers slightly, for a better result visually
+			int y = (getHeight() - size) / 2;
+			int protrusion = 3;
+			fillCross(g, x - space / 2, y - space / 2, size, protrusion);
+			fillCross(g, x + space / 2, y - space / 2, size, protrusion);
+			fillCross(g, x - space / 2, y + space / 2, size, protrusion);
+			fillCross(g, x + space / 2, y + space / 2, size, protrusion);
+			*/
 			}
 			break;
 		}
