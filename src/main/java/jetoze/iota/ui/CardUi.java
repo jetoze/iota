@@ -103,17 +103,68 @@ public class CardUi extends JComponent {
 	}
 	
 	private void fillTriangle(Graphics2D g, int x, int y, int width, int height) {
-		int[] xPoints = new int[] {
-				x,
-				x + width / 2,
-				x + width
-		};
-		int yPoints[] = new int[] {
-				y + height,
-				y,
-				y + height
-		};
-		g.fillPolygon(xPoints, yPoints, 3);
+		fillTriangle(g, x, y, width, height, Direction.UP);
+	}
+	
+	private void fillTriangle(Graphics2D g, int x, int y, int width, int height, Direction direction) {
+		switch (direction) {
+		case UP: {
+			int[] xPoints = new int[] {
+					x,
+					x + width / 2,
+					x + width
+			};
+			int yPoints[] = new int[] {
+					y + height,
+					y,
+					y + height
+			};
+			g.fillPolygon(xPoints, yPoints, 3);
+		}
+		break;
+		case DOWN: {
+			int[] xPoints = new int[] {
+					x,
+					x + width / 2,
+					x + width
+			};
+			int yPoints[] = new int[] {
+					y,
+					y + height,
+					y
+			};
+			g.fillPolygon(xPoints, yPoints, 3);
+		}
+		break;
+		case LEFT: {
+			int[] xPoints = new int[] {
+					x,
+					x + width,
+					x + width
+			};
+			int yPoints[] = new int[] {
+					y + height / 2,
+					y,
+					y + height
+			};
+			g.fillPolygon(xPoints, yPoints, 3);
+		}
+		break;
+		case RIGHT: {
+			int[] xPoints = new int[] {
+					x,
+					x,
+					x + width
+			};
+			int yPoints[] = new int[] {
+					y,
+					y + height,
+					y + height / 2
+			};
+			g.fillPolygon(xPoints, yPoints, 3);
+		}
+		break;
+		}
 	}
 	
 	private void fillCross(Graphics2D g, int x, int y, int size, int protrusion) {
@@ -286,13 +337,13 @@ public class CardUi extends JComponent {
 			}
 			break;
 		case TRIANGLE: {
-			// TODO: Rotate the triangles.
+			space += 4;
 			int x = getWidth() / 2 - space / 2 - size;
-			int y = (getHeight() - size) / 2 + 6;
-			fillTriangle(g, x, y, size, size);
-			fillTriangle(g, x + (space + size) / 2, y - space / 2 - size / 2, size, size);
-			fillTriangle(g, x + (space + size) / 2, y + space / 2 + size / 2, size, size);
-			fillTriangle(g, x + space + size, y, size, size);
+			int y = (getHeight() - size) / 2 + 8;
+			fillTriangle(g, x, y, size, size, Direction.LEFT);
+			fillTriangle(g, x + (space + size) / 2, y - space / 2 - size / 2, size, size, Direction.UP);
+			fillTriangle(g, x + (space + size) / 2, y + space / 2 + size / 2, size, size, Direction.DOWN);
+			fillTriangle(g, x + space + size, y, size, size, Direction.RIGHT);
 			}
 			break;
 		case CROSS: {
@@ -303,20 +354,16 @@ public class CardUi extends JComponent {
 			fillCross(g, x + (space + size) / 2, y - space / 2 - size / 2, size, protrusion);
 			fillCross(g, x + (space + size) / 2, y + space / 2 + size / 2, size, protrusion);
 			fillCross(g, x + space + size, y, size, protrusion);
-
-			/*
-			int x = (getWidth() - size) / 2;
-			// Lift up the markers slightly, for a better result visually
-			int y = (getHeight() - size) / 2;
-			int protrusion = 3;
-			fillCross(g, x - space / 2, y - space / 2, size, protrusion);
-			fillCross(g, x + space / 2, y - space / 2, size, protrusion);
-			fillCross(g, x - space / 2, y + space / 2, size, protrusion);
-			fillCross(g, x + space / 2, y + space / 2, size, protrusion);
-			*/
 			}
 			break;
 		}
+	}
+	
+	
+	private static enum Direction {
+		
+		UP, DOWN, LEFT, RIGHT
+		
 	}
 
 }
