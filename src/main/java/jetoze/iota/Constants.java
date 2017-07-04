@@ -14,6 +14,8 @@ public final class Constants {
 	
 	public static final int NUMBER_OF_WILDCARDS = 2;
 	
+	public static final int NUMBER_OF_CARDS_PER_PLAYER = MAX_LINE_LENGTH;
+	
 	public static enum Color {
 		
 		RED, GREEN, BLUE, YELLOW

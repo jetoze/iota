@@ -8,38 +8,46 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import jetoze.iota.Card;
 import jetoze.iota.Constants;
-import jetoze.iota.Constants.Color;
-import jetoze.iota.Constants.Shape;
+import jetoze.iota.Deck;
+import jetoze.iota.Player;
 import jetoze.iota.Position;
 
 public final class UiTestDriver {
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(UiTestDriver::publish);
+		UiTestDriver driver = new UiTestDriver();
+		EventQueue.invokeLater(driver::publish);
 	}
 	
-	public static void publish() {
+	private final Player player1 = new Player("John");
+	
+	private final Player player2 = new Player("Alice");
+	
+	private final Deck deck = Deck.shuffled();
+	
+	public UiTestDriver() {
+		for (int n = 0; n < Constants.NUMBER_OF_CARDS_PER_PLAYER; ++n) {
+			player1.giveCard(deck.next());
+			player2.giveCard(deck.next());
+		}
+	}
+	
+	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
+		gridUi.setGameBoard(true);
 		
 		int row = 0;
 		int col = 0;
-		for (Color c : Color.values()) {
-			for (Shape s : Shape.values()) {
-				for (int fv = Constants.MIN_FACE_VALUE; fv <= Constants.MAX_FACE_VALUE; ++fv) {
-					CardUi card = new CardUi(Card.newCard(c, s, fv));
-					gridUi.addCard(card, row, col);
-					col++;
-					if (col == 8) {
-						col = 0;
-						++row;
-					}
-				}
+		while (!deck.isEmpty()) {
+			CardUi card = new CardUi(deck.next());
+			gridUi.addCard(card, row, col);
+			col++;
+			if (col == 8) {
+				col = 0;
+				++row;
 			}
 		}
-		gridUi.addCard(new CardUi(Card.wildcard()), -1, 0);
-		gridUi.addCard(new CardUi(Card.wildcard()), -1, 1);
 
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,10 +61,10 @@ public final class UiTestDriver {
 		gridUi.scrollToVisible(new Position(0, 0), new Position(8, 8));
 	}
 	
-	private static JComponent layoutPlayerAreas() {
+	private JComponent layoutPlayerAreas() {
 		JPanel p = new JPanel(new BorderLayout());
-		p.add(new PlayerArea().getUi(), BorderLayout.WEST);
-		p.add(new PlayerArea().getUi(), BorderLayout.EAST);
+		p.add(new PlayerArea(player1).getUi(), BorderLayout.WEST);
+		p.add(new PlayerArea(player2).getUi(), BorderLayout.EAST);
 		return p;
 	}
 

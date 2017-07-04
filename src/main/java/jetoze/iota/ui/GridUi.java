@@ -23,15 +23,27 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		return new GridUi(size, size);
 	}
 	
+	private final int rows;
+	
+	private final int cols;
+	
 	private final Map<Position, CardUi> cards = new HashMap<>();
 	
+	private boolean usesAbsolutePositions = true;
+	
 	public GridUi(int rows, int cols) {
+		this.rows = rows;
+		this.cols = cols;
 		int width = UiConstants.GRID_CELL_MARGIN + 
 				cols * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
 		int height = UiConstants.GRID_CELL_MARGIN + 
 				rows * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
 		setSize(width, height);
 		setLayout(null);
+	}
+	
+	public void setGameBoard(boolean value) {
+		this.usesAbsolutePositions = !value;
 	}
 	
 	public void addCard(CardUi card, int row, int col) {
@@ -64,13 +76,18 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	 * positions to the internal positions maintained by this grid. For example, if the grid has 50 cells
 	 * per side, the external position (0, 0) is internally represented by (24, 24).
 	 */
-	private static Position toInternalPosition(Position external) {
-		int shift = UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID / 2 - 1;
-		int row = external.row + shift;
-		checkArgument(row < UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID, "Row out of bounds: " + external.row);
-		int col = external.col + shift;
-		checkArgument(col < UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID, "Column out of bounds: " + external.col);
-		return new Position(row, col);
+	private Position toInternalPosition(Position external) {
+		if (usesAbsolutePositions) {
+			return external;
+		} else {
+			int rowShift = this.rows / 2 - 1;
+			int row = external.row + rowShift;
+			checkArgument(row < UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID, "Row out of bounds: " + external.row);
+			int colShift = this.cols / 2 - 1;
+			int col = external.col + colShift;
+			checkArgument(col < UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID, "Column out of bounds: " + external.col);
+			return new Position(row, col);
+		}
 	}
 	
 	public void scrollToVisible(Position upperLeft, Position lowerRight) {
