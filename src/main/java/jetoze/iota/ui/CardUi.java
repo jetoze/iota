@@ -18,6 +18,8 @@ import jetoze.iota.Constants.Shape;
 
 public class CardUi extends JComponent {
 
+	// TODO: Switch to using composition rather than inheritance.
+
 	private final Card card;
 
 	private boolean faceUp = true;
@@ -32,6 +34,10 @@ public class CardUi extends JComponent {
 				setFaceUp(!isFaceUp());
 			}
 		});
+	}
+	
+	public Card getCard() {
+		return card;
 	}
 
 	public boolean isFaceUp() {

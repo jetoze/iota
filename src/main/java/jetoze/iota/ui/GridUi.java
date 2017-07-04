@@ -10,9 +10,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
+import jetoze.iota.Card;
 import jetoze.iota.Position;
 
 public final class GridUi extends JPanel /* or should I also extend JComponent?*/ {
@@ -27,7 +30,9 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	
 	private final int cols;
 	
-	private final Map<Position, CardUi> cards = new HashMap<>();
+	private final Map<Position, CardUi> posToCardUi = new HashMap<>();
+	
+	private final Map<Card, Position> cardToPos = new HashMap<>();
 	
 	private boolean usesAbsolutePositions = true;
 	
@@ -46,6 +51,18 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		this.usesAbsolutePositions = !value;
 	}
 	
+	public Optional<Position> firstAvailablePosition() {
+		for (int row = 0; row < this.rows; ++row) {
+			for (int col = 0; col < this.cols; ++col) {
+				Position p = new Position(row, col);
+				if (!posToCardUi.containsKey(p)) {
+					return Optional.of(toExternal(p));
+				}
+			}
+		}
+		return Optional.empty();
+	}
+	
 	public void addCard(CardUi card, int row, int col) {
 		addCard(card, new Position(row, col));
 	}
@@ -53,14 +70,16 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	public void addCard(CardUi card, Position pos) {
 		checkNotNull(card);
 		Position internalPos = toInternalPosition(pos);
-		CardUi oldCard = cards.get(internalPos);
+		CardUi oldCard = this.posToCardUi.get(internalPos);
 		if (oldCard != null) {
 			remove(oldCard);
+			this.cardToPos.remove(oldCard.getCard());
 		}
 		Point pt = locationOf(internalPos);
 		card.setLocation(pt);
 		add(card);
-		cards.put(internalPos, card);
+		this.posToCardUi.put(internalPos, card);
+		this.cardToPos.put(card.getCard(), internalPos);
 	}
 	
 	private static Point locationOf(Position pos) {
@@ -90,6 +109,18 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		}
 	}
 	
+	private Position toExternal(Position internal) {
+		if (usesAbsolutePositions) {
+			return internal;
+		} else {
+			int rowShift = this.rows / 2 - 1;
+			int row = internal.row - rowShift;
+			int colShift = this.cols / 2 - 1;
+			int col = internal.col - colShift;
+			return new Position(row, col);
+		}
+	}
+	
 	public void scrollToVisible(Position upperLeft, Position lowerRight) {
 		Point ptUpperLeft = locationOf(toInternalPosition(upperLeft));
 		Point otLowerRight = locationOf(toInternalPosition(lowerRight));
@@ -97,6 +128,18 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		otLowerRight.y += UiConstants.CARD_SIZE;
 		Rectangle r = new Rectangle(ptUpperLeft.x, ptUpperLeft.y, otLowerRight.x - ptUpperLeft.x, otLowerRight.y - ptUpperLeft.y);
 		scrollRectToVisible(r);
+	}
+	
+	public boolean removeCard(Card card) {
+		checkNotNull(card);
+		Position pos = this.cardToPos.remove(card);
+		if (pos == null) {
+			return false;
+		}
+		CardUi cardUi = this.posToCardUi.remove(pos);
+		assert cardUi != null;
+		remove(cardUi);
+		return true;
 	}
 	
 	@Override
@@ -124,6 +167,10 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	@Override
 	public Dimension getPreferredSize() {
 		return getSize();
+	}
+	
+	public Stream<CardUi> allCardUis() {
+		return this.posToCardUi.values().stream();
 	}
 
 }
