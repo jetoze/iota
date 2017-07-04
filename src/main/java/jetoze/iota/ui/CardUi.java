@@ -103,14 +103,14 @@ public class CardUi extends JComponent {
 		}
 			break;
 		case SQUARE: {
-			int innerMargin = UiConstants.INNER_CARD_MARGIN;
+			int innerMargin = (int) (UiConstants.INNER_CARD_MARGIN * 1.75);
 			g.fillRect(outerMargin + innerMargin, outerMargin + innerMargin,
 					getWidth() - 2 * (outerMargin + innerMargin), getHeight() - 2 * (outerMargin + innerMargin));
 		}
 			break;
 		case TRIANGLE: {
-			int innerMarginH = UiConstants.INNER_CARD_MARGIN - 2;
-			int innerMarginV = UiConstants.INNER_CARD_MARGIN + 2;
+			int innerMarginH = UiConstants.INNER_CARD_MARGIN;
+			int innerMarginV = UiConstants.INNER_CARD_MARGIN + 3;
 			fillTriangle(g, outerMargin + innerMarginH, outerMargin + innerMarginV,
 					getWidth() - 2 * (outerMargin + innerMarginH), getHeight() - 2 * (outerMargin + innerMarginV));
 		}
