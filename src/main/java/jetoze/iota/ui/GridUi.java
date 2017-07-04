@@ -18,13 +18,18 @@ import jetoze.iota.Position;
 public final class GridUi extends JPanel /* or should I also extend JComponent?*/ {
 
 	// TODO: Switch to using composition rather than inheritance.
+
+	public static GridUi square(int size) {
+		return new GridUi(size, size);
+	}
 	
 	private final Map<Position, CardUi> cards = new HashMap<>();
 	
-	public GridUi() {
+	public GridUi(int rows, int cols) {
 		int width = UiConstants.GRID_CELL_MARGIN + 
-				UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
-		int height = width;
+				cols * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
+		int height = UiConstants.GRID_CELL_MARGIN + 
+				rows * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
 		setSize(width, height);
 		setLayout(null);
 	}
@@ -81,6 +86,8 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Color saved = g.getColor();
+		g.setColor(Color.BLACK);
+		g.drawRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
 		g.setColor(UiConstants.GRID_COLOR);
 		for (int row = 1; row < UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID; ++row) {
 			int y = UiConstants.GRID_CELL_MARGIN + row * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);

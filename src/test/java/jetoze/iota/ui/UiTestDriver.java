@@ -1,8 +1,11 @@
 package jetoze.iota.ui;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import jetoze.iota.Card;
@@ -18,7 +21,7 @@ public final class UiTestDriver {
 	}
 	
 	public static void publish() {
-		GridUi gridUi = new GridUi();
+		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
 		
 		int row = 0;
 		int col = 0;
@@ -43,10 +46,18 @@ public final class UiTestDriver {
 		JScrollPane scrollPane = new JScrollPane(gridUi);
 		scrollPane.getHorizontalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
-		frame.getContentPane().add(scrollPane);
+		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+		frame.getContentPane().add(layoutPlayerAreas(), BorderLayout.SOUTH);
 		frame.setSize(1000, 1000);
 		frame.setVisible(true);
 		gridUi.scrollToVisible(new Position(0, 0), new Position(8, 8));
+	}
+	
+	private static JComponent layoutPlayerAreas() {
+		JPanel p = new JPanel(new BorderLayout());
+		p.add(new PlayerArea().getUi(), BorderLayout.WEST);
+		p.add(new PlayerArea().getUi(), BorderLayout.EAST);
+		return p;
 	}
 
 }
