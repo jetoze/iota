@@ -32,6 +32,8 @@ public final class UiConstants {
 	
 	public static final java.awt.Color CARD_BACKGROUND = new java.awt.Color(250, 250, 250);
 	
+	public static final java.awt.Color BACK_OF_CARD_COLOR = new java.awt.Color(0, 51, 102);
+	
 	private static final EnumMap<Color, java.awt.Color> CARD_COLORS = new EnumMap<>(Color.class);
 	static {
 		CARD_COLORS.put(Color.RED, java.awt.Color.RED);
@@ -49,6 +51,13 @@ public final class UiConstants {
 		return (cardShape == Shape.CROSS)
 				? 10
 				: 8;
+	}
+	
+	public static void fillCardBase(CardUi cardUi, Graphics2D g) {
+		g.setColor(cardUi.isFaceUp()
+				? CARD_BACKGROUND
+				: BACK_OF_CARD_COLOR);
+		g.fillRoundRect(1, 1, cardUi.getWidth() - 2, cardUi.getHeight() - 2, 6, 6);
 	}
 	
 	private UiConstants() {/**/}

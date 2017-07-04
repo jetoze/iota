@@ -2,11 +2,9 @@ package jetoze.iota.ui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
@@ -20,13 +18,22 @@ public class CardUi extends JComponent {
 
 	private final Card card;
 
-	private Point anchorPoint;
-
-	private final Cursor draggingCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-
+	private boolean faceUp = true;
+	
 	public CardUi(Card card) {
 		this.card = checkNotNull(card);
 		setSize(UiConstants.CARD_SIZE, UiConstants.CARD_SIZE);
+	}
+
+	public boolean isFaceUp() {
+		return faceUp;
+	}
+
+	public void setFaceUp(boolean faceUp) {
+		if (faceUp != this.faceUp) {
+			this.faceUp = faceUp;
+			repaint();
+		}
 	}
 
 	@Override
@@ -39,20 +46,27 @@ public class CardUi extends JComponent {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        // Border:
-		g2.setColor(UiConstants.CARD_BORDER_COLOR);
-		g2.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-
 		// Background:
-		g2.setColor(UiConstants.CARD_BACKGROUND);
-		g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 6, 6);
-		if (card.isWildcard()) {
-			paintWildcard(g2);
-		} else {
-			paintConcreteCard(g2);
-		}
+		UiConstants.fillCardBase(this, g2);
+
+		if (this.faceUp) {
+        	drawFaceUp(g2);
+        } else {
+        	drawFaceDown(g2);
+        }
 		g2.dispose();
+	}
+
+	private void drawFaceUp(Graphics2D g) {
+		// Border:
+		g.setColor(UiConstants.CARD_BORDER_COLOR);
+		g.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+
+		if (card.isWildcard()) {
+			paintWildcard(g);
+		} else {
+			paintConcreteCard(g);
+		}
 	}
 
 	private void paintConcreteCard(Graphics2D g) {
@@ -356,6 +370,42 @@ public class CardUi extends JComponent {
 		fillTriangle(g, margin + squareSize + innerMargin, margin + squareSize + innerMargin, innerShapeSize, innerShapeSize);
 	}
 
+	private void drawFaceDown(Graphics2D g) {
+		int innerMargin = UiConstants.INNER_CARD_MARGIN;
+		int shapeSize = 5;
+		int shapeSpace = 4;
+		g.setColor(java.awt.Color.LIGHT_GRAY);
+		Shape firstShapeInRow = Shape.values()[0];
+		for (int row = 0; row < 8; ++row) {
+			int y = innerMargin + row * (shapeSize + shapeSpace);
+			Shape shape = firstShapeInRow;
+			for (int col = 0; col < 8; ++col) {
+				int x = innerMargin + col * (shapeSize + shapeSpace);
+				switch (shape) {
+				case CIRCLE:
+					g.fillOval(x, y, shapeSize, shapeSize);
+					break;
+				case SQUARE:
+					g.fillRect(x, y, shapeSize, shapeSize);
+					break;
+				case TRIANGLE:
+					fillTriangle(g, x, y, shapeSize, shapeSize);
+					break;
+				case CROSS:
+					fillCross(g, x, y, shapeSize, 2);
+					break;
+				}
+				shape = nextShape(shape);
+			}
+			firstShapeInRow = nextShape(firstShapeInRow);
+		}
+	}
+	
+	private static Shape nextShape(Shape shape) {
+		Shape[] shapes = Shape.values();
+		int ordinal = (shape.ordinal() + 1) % shapes.length;
+		return Shape.values()[ordinal];
+	}
 	private static enum Direction {
 
 		UP, DOWN, LEFT, RIGHT

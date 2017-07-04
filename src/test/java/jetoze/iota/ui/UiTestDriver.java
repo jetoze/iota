@@ -35,11 +35,13 @@ public final class UiTestDriver {
 				}
 			}
 		}
-		gridUi.addCard(new CardUi(Card.wildcard()), -1, -1);
-		gridUi.addCard(new CardUi(Card.wildcard()), 8, 8);
+		CardUi wc1 = new CardUi(Card.wildcard());
+		wc1.setFaceUp(false);
+		gridUi.addCard(wc1, -1, -1);
+		CardUi wc2 = new CardUi(Card.wildcard());
+		wc2.setFaceUp(false);
+		gridUi.addCard(wc2, 8, 8);
 
-//		int gridLength = 8 * (CARD_SIZE + margin) + margin;
-//		canvas.setPreferredSize(new Dimension(gridLength, gridLength));
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JScrollPane scrollPane = new JScrollPane(gridUi);
