@@ -28,8 +28,13 @@ public final class GameState {
 		Card card = deck.next();
 		grid.start(card);
 	}
+	
+	public void completeTurn(GameAction action) {
+		action.perform(playerInTurn, grid, deck);
+		switchPlayer();
+	}
 
-	public void switchPlayer() {
+	private void switchPlayer() {
 		this.playerInTurn = (this.playerInTurn == this.player1)
 				? this.player2
 				: this.player1;

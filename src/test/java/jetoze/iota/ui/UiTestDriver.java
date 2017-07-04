@@ -39,15 +39,15 @@ public final class UiTestDriver {
 		
 		int row = 0;
 		int col = 0;
-		while (!deck.isEmpty()) {
-			CardUi card = new CardUi(deck.next());
-			gridUi.addCard(card, row, col);
-			col++;
-			if (col == 8) {
-				col = 0;
-				++row;
-			}
-		}
+//		while (!deck.isEmpty()) {
+//			CardUi card = new CardUi(deck.next());
+//			gridUi.addCard(card, row, col);
+//			col++;
+//			if (col == 8) {
+//				col = 0;
+//				++row;
+//			}
+//		}
 
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
