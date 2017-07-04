@@ -1,5 +1,6 @@
 package jetoze.iota;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -28,7 +29,9 @@ public class Player {
 	}
 	
 	public void addPoints(int points) {
+		checkArgument(points > 0);
 		this.points += points;
+		this.observers.forEach(o -> o.pointsChanged(Player.this, Player.this.points));
 	}
 	
 	public int getPoints() {
@@ -37,8 +40,20 @@ public class Player {
 
 	public void giveCard(Card card) {
 		checkNotNull(card);
-		checkState(this.cards.size() < Constants.NUMBER_OF_CARDS_PER_PLAYER);
+		checkState(this.needsCards());
 		this.cards.add(card);
+		this.observers.forEach(o -> o.gotCard(Player.this, card));
+	}
+	
+	public void removeCard(Card card) {
+		checkNotNull(card);
+		if (this.cards.remove(card)) {
+			this.observers.forEach(o -> o.playedCard(Player.this, card));
+		}
+	}
+	
+	public boolean needsCards() {
+		return this.cards.size() < Constants.NUMBER_OF_CARDS_PER_PLAYER;
 	}
 	
 	public ImmutableList<Card> getCards() {
