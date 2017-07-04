@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 
@@ -23,6 +25,13 @@ public class CardUi extends JComponent {
 	public CardUi(Card card) {
 		this.card = checkNotNull(card);
 		setSize(UiConstants.CARD_SIZE, UiConstants.CARD_SIZE);
+		addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setFaceUp(!isFaceUp());
+			}
+		});
 	}
 
 	public boolean isFaceUp() {
@@ -406,6 +415,8 @@ public class CardUi extends JComponent {
 		int ordinal = (shape.ordinal() + 1) % shapes.length;
 		return Shape.values()[ordinal];
 	}
+	
+	
 	private static enum Direction {
 
 		UP, DOWN, LEFT, RIGHT

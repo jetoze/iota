@@ -35,12 +35,8 @@ public final class UiTestDriver {
 				}
 			}
 		}
-		CardUi wc1 = new CardUi(Card.wildcard());
-		wc1.setFaceUp(false);
-		gridUi.addCard(wc1, -1, -1);
-		CardUi wc2 = new CardUi(Card.wildcard());
-		wc2.setFaceUp(false);
-		gridUi.addCard(wc2, 8, 8);
+		gridUi.addCard(new CardUi(Card.wildcard()), -1, 0);
+		gridUi.addCard(new CardUi(Card.wildcard()), -1, 1);
 
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
