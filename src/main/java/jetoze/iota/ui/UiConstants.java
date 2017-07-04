@@ -30,6 +30,8 @@ public final class UiConstants {
 	
 	public static final java.awt.Color CARD_BORDER_COLOR = java.awt.Color.LIGHT_GRAY;
 	
+	public static final java.awt.Color CARD_BACKGROUND = new java.awt.Color(250, 250, 250);
+	
 	private static final EnumMap<Color, java.awt.Color> CARD_COLORS = new EnumMap<>(Color.class);
 	static {
 		CARD_COLORS.put(Color.RED, java.awt.Color.RED);

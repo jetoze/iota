@@ -44,8 +44,8 @@ public class CardUi extends JComponent {
 		g2.setColor(UiConstants.CARD_BORDER_COLOR);
 		g2.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
 
-		// White background
-		g2.setColor(java.awt.Color.WHITE);
+		// Background:
+		g2.setColor(UiConstants.CARD_BACKGROUND);
 		g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 6, 6);
 		if (card.isWildcard()) {
 			paintWildcard(g2);
