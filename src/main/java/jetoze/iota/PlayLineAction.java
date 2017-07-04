@@ -15,9 +15,6 @@ public final class PlayLineAction implements GameAction {
 	@Override
 	public void perform(Player player, Grid grid, Deck deck) {
 		int points = grid.addLine(cardsToPlay);
-		cardsToPlay.stream()
-			.map(LineItem::getCard)
-			.forEach(player::removeCard);
 		while (player.needsCards() && !deck.isEmpty()) {
 			player.giveCard(deck.next());
 		}

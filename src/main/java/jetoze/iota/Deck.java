@@ -1,10 +1,10 @@
 package jetoze.iota;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 public final class Deck {
 
@@ -14,43 +14,43 @@ public final class Deck {
 		return deck;
 	}
 	
-	private final Stack<Card> cards = new Stack<>();
+	private final List<Card> cards = new ArrayList<>();
 	
 	public Deck() {
 		for (int n = 0; n < Constants.NUMBER_OF_WILDCARDS; ++n) {
-			cards.push(Card.wildcard());
+			cards.add(Card.wildcard());
 		}
-		for (Card c : Card.createPossibleCards(Constants.collectAllCardProperties())){
-			cards.push(c);
-		}
+		cards.addAll(Card.createPossibleCards(Constants.collectAllCardProperties()));
 	}
 	
 	public Deck(Collection<Card> cards) {
-		cards.addAll(cards);
+		this.cards.addAll(cards);
+		Collections.reverse(this.cards);
 	}
 	
 	public void shuffle() {
-		List<Card> list = new ArrayList<>(cards);
-		Collections.shuffle(list);
-		cards.removeAllElements();
-		cards.addAll(list);
+		Collections.shuffle(this.cards);
 	}
 	
 	public boolean isEmpty() {
 		return cards.isEmpty();
 	}
 	
-	public Card next() {
-		return cards.pop();
+	public int cardsLeft() {
+		return cards.size();
 	}
 	
+	public Card next() {
+		Card next = cards.remove(cards.size() - 1);
+		return next;
+	}
 	
-	public static void main(String[] args) {
-		Deck deck = Deck.shuffled();
-		while (!deck.isEmpty()) {
-			Card c = deck.next();
-			System.out.println(c);
-		}
+	public void addToBottom(Card... cards) {
+		addToBottom(Arrays.asList(cards));
+	}
+	
+	public void addToBottom(Collection<Card> toAdd) {
+		toAdd.forEach(c -> cards.add(0, c));
 	}
 	
 }
