@@ -2,6 +2,7 @@ package jetoze.iota.ui;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -49,24 +50,15 @@ public final class UiTestDriver {
 				cardUi.toggleSelection();
 			}
 		});
-
+		ControlPanel controlPanel = new ControlPanel();
+		GameBoard gameBoard = new GameBoard(gridUi, controlPanel, Arrays.asList(
+				new PlayerArea(player1), new PlayerArea(player2)));
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JScrollPane scrollPane = new JScrollPane(gridUi);
-		scrollPane.getHorizontalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
-		scrollPane.getVerticalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
-		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-		frame.getContentPane().add(layoutPlayerAreas(), BorderLayout.SOUTH);
+		frame.getContentPane().add(gameBoard.layout(), BorderLayout.CENTER);
 		frame.setSize(1000, 1000);
 		frame.setVisible(true);
 		gridUi.scrollToVisible(new Position(0, 0), new Position(8, 8));
-	}
-	
-	private JComponent layoutPlayerAreas() {
-		JPanel p = new JPanel(new BorderLayout());
-		p.add(new PlayerArea(player1).getUi(), BorderLayout.WEST);
-		p.add(new PlayerArea(player2).getUi(), BorderLayout.EAST);
-		return p;
 	}
 
 }

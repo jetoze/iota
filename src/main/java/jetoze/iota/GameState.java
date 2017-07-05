@@ -1,5 +1,10 @@
 package jetoze.iota;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 public final class GameState {
 
 	private final Player player1 = new Player("John");
@@ -11,6 +16,11 @@ public final class GameState {
 	private final Grid grid = new Grid();
 	
 	private Player playerInTurn = player1;
+	
+	@Nullable
+	private Card selectedPlayerCard;
+	
+	private final List<LineItem> placedCards = new ArrayList<>();
 	
 	public GameState() {
 		giveCardsToPlayers();

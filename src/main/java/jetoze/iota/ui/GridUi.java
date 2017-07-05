@@ -18,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import jetoze.iota.Card;
@@ -192,6 +193,13 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	@Override
 	public Dimension getPreferredSize() {
 		return getSize();
+	}
+	
+	public JScrollPane inScroll() {
+		JScrollPane scrollPane = new JScrollPane(this);
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(UiConstants.CARD_SIZE / 2);
+		return scrollPane;
 	}
 	
 	public Stream<CardUi> allCardUis() {
