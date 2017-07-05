@@ -2,10 +2,12 @@ package jetoze.iota.ui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.awt.BasicStroke;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -24,16 +26,11 @@ public class CardUi extends JComponent {
 
 	private boolean faceUp = true;
 	
+	private boolean selected;
+	
 	public CardUi(Card card) {
 		this.card = checkNotNull(card);
 		setSize(UiConstants.CARD_SIZE, UiConstants.CARD_SIZE);
-		addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				setFaceUp(!isFaceUp());
-			}
-		});
 	}
 	
 	public Card getCard() {
@@ -49,6 +46,21 @@ public class CardUi extends JComponent {
 			this.faceUp = faceUp;
 			repaint();
 		}
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean selected) {
+		if (selected != this.selected) {
+			this.selected = selected;
+			repaint();
+		}
+	}
+	
+	public void toggleSelection() {
+		setSelected(!isSelected());
 	}
 
 	@Override
@@ -73,14 +85,24 @@ public class CardUi extends JComponent {
 	}
 
 	private void drawFaceUp(Graphics2D g) {
-		// Border:
-		g.setColor(UiConstants.CARD_BORDER_COLOR);
-		g.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-
+		drawBorder(g);
 		if (card.isWildcard()) {
 			paintWildcard(g);
 		} else {
 			paintConcreteCard(g);
+		}
+	}
+
+	private void drawBorder(Graphics2D g) {
+		java.awt.Color color = UiConstants.getBorderColor(this);
+		g.setColor(color);
+		if (selected) {
+			Stroke savedStroke = g.getStroke();
+			g.setStroke(new BasicStroke(5.f));
+			g.drawRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+			g.setStroke(savedStroke);
+		} else {
+			g.drawRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
 		}
 	}
 

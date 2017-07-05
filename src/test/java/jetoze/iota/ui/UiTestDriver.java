@@ -36,18 +36,19 @@ public final class UiTestDriver {
 	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
 		gridUi.setGameBoard(true);
-		
-		int row = 0;
-		int col = 0;
-//		while (!deck.isEmpty()) {
-//			CardUi card = new CardUi(deck.next());
-//			gridUi.addCard(card, row, col);
-//			col++;
-//			if (col == 8) {
-//				col = 0;
-//				++row;
-//			}
-//		}
+		gridUi.addCard(new CardUi(deck.next()), 0, 0);
+		gridUi.addListener(new GridUiListener() {
+			
+			@Override
+			public void emptyCellWasClickedOn(Position pos, int numberOfClicks) {
+				System.out.println("Clicked on cell " + pos + ". Click count: " + numberOfClicks);
+			}
+			
+			@Override
+			public void cardWasClickedOn(CardUi cardUi, int numberOfClicks) {
+				cardUi.toggleSelection();
+			}
+		});
 
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

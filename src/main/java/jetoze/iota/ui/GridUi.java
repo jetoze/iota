@@ -8,12 +8,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import jetoze.iota.Card;
 import jetoze.iota.Position;
@@ -36,6 +41,10 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	
 	private boolean usesAbsolutePositions = true;
 	
+	private final List<GridUiListener> listeners = new CopyOnWriteArrayList<>();
+
+	private final MouseClickRouter mouseClickRouter = new MouseClickRouter();
+	
 	public GridUi(int rows, int cols) {
 		this.rows = rows;
 		this.cols = cols;
@@ -45,6 +54,7 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 				rows * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
 		setSize(width, height);
 		setLayout(null);
+		addMouseListener(mouseClickRouter);
 	}
 	
 	public void setGameBoard(boolean value) {
@@ -72,22 +82,37 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		Position internalPos = toInternalPosition(pos);
 		CardUi oldCard = this.posToCardUi.get(internalPos);
 		if (oldCard != null) {
-			remove(oldCard);
-			this.cardToPos.remove(oldCard.getCard());
+			removeCard(oldCard);
 		}
-		Point pt = locationOf(internalPos);
+		Point pt = positionToPoint(internalPos);
 		card.setLocation(pt);
 		add(card);
+		card.addMouseListener(mouseClickRouter);
 		this.posToCardUi.put(internalPos, card);
 		this.cardToPos.put(card.getCard(), internalPos);
 	}
+
+	private void removeCard(CardUi card) {
+		Position pos = this.cardToPos.remove(card.getCard());
+		this.posToCardUi.remove(pos);
+		card.removeMouseListener(mouseClickRouter);
+		remove(card);
+	}
 	
-	private static Point locationOf(Position pos) {
+	private static Point positionToPoint(Position pos) {
 		int x = UiConstants.GRID_CELL_MARGIN + pos.col * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN)
 				+ UiConstants.GRID_CELL_MARGIN / 2;
 		int y = UiConstants.GRID_CELL_MARGIN + pos.row * (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN)
 				+ UiConstants.GRID_CELL_MARGIN / 2;
 		return new Point(x, y);
+	}
+	
+	private static Position pointToPosition(Point p) {
+		int x = p.x - UiConstants.GRID_CELL_MARGIN;
+		int y = p.y - UiConstants.GRID_CELL_MARGIN;
+		int row = y / (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
+		int col = x / (UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN);
+		return new Position(row, col);
 	}
 	
 	/**
@@ -122,8 +147,8 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	}
 	
 	public void scrollToVisible(Position upperLeft, Position lowerRight) {
-		Point ptUpperLeft = locationOf(toInternalPosition(upperLeft));
-		Point otLowerRight = locationOf(toInternalPosition(lowerRight));
+		Point ptUpperLeft = positionToPoint(toInternalPosition(upperLeft));
+		Point otLowerRight = positionToPoint(toInternalPosition(lowerRight));
 		otLowerRight.x += UiConstants.CARD_SIZE;
 		otLowerRight.y += UiConstants.CARD_SIZE;
 		Rectangle r = new Rectangle(ptUpperLeft.x, ptUpperLeft.y, otLowerRight.x - ptUpperLeft.x, otLowerRight.y - ptUpperLeft.y);
@@ -172,5 +197,57 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	public Stream<CardUi> allCardUis() {
 		return this.posToCardUi.values().stream();
 	}
+	
+	public void addListener(GridUiListener lst) {
+		checkNotNull(lst);
+		this.listeners.add(lst);
+	}
+	
+	public void removeListener(GridUiListener lst) {
+		checkNotNull(lst);
+		this.listeners.remove(lst);
+	}
 
+	
+	private class MouseClickRouter extends MouseAdapter {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (!SwingUtilities.isLeftMouseButton(e)) {
+				return;
+			}
+			if (e.getSource() instanceof CardUi) {
+				handleClickOnCard(e);
+			} else {
+				handleClickOnEmptyCell(e);
+			}
+		}
+
+		private void handleClickOnCard(MouseEvent e) {
+			CardUi cardUi = (CardUi) e.getSource();
+			int clickCount = e.getClickCount();
+			listeners.forEach(lst -> lst.cardWasClickedOn(cardUi, clickCount));
+		}
+
+		private void handleClickOnEmptyCell(MouseEvent e) {
+			if (isInVicinityOfCellBorder(e)) {
+				return;
+			}
+			Position internalPos = pointToPosition(e.getPoint());
+			Position externalPos = toExternal(internalPos);
+			int clickCount = e.getClickCount();
+			listeners.forEach(lst -> lst.emptyCellWasClickedOn(externalPos, clickCount));
+		}
+		
+		private boolean isInVicinityOfCellBorder(MouseEvent e) {
+			return isInVicinityOfCellBorder(e.getX()) || isInVicinityOfCellBorder(e.getY());
+		}
+		
+		private boolean isInVicinityOfCellBorder(int loc) {
+			int cellSize = UiConstants.CARD_SIZE + UiConstants.GRID_CELL_MARGIN;
+			int mod = (loc - UiConstants.GRID_CELL_MARGIN) % cellSize;
+			return (mod <= 3) || ((cellSize - mod) <= 3);
+		}
+	}
+	
 }
