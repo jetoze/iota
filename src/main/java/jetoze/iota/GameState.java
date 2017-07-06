@@ -42,7 +42,7 @@ public final class GameState {
 	}
 	
 	public void completeTurn(GameAction action) {
-		action.perform(playerInTurn, grid, deck);
+		action.invoke(playerInTurn, grid, deck);
 		switchPlayer();
 	}
 

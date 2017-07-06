@@ -14,6 +14,10 @@ public final class Deck {
 		return deck;
 	}
 	
+	public static Deck of(Card... cards) {
+		return new Deck(Arrays.asList(cards));
+	}
+	
 	private final List<Card> cards = new ArrayList<>();
 	
 	public Deck() {

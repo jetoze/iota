@@ -17,14 +17,17 @@ public final class PassAction implements GameAction {
 	}
 
 	@Override
-	public void perform(Player player, Grid grid, Deck deck) {
-		int numberOfCardsThatCanBeTraded = Math.min(this.cardsToTrade.size(), deck.cardsLeft());
-		for (int n = 0; n < numberOfCardsThatCanBeTraded; ++n) {
-			Card c = this.cardsToTrade.get(n);
-			player.removeCard(c);
-			deck.addToBottom(c);
-			player.giveCard(deck.next());
+	public Result invoke(Player player, Grid grid, Deck deck) {
+		if (deck.cardsLeft() < this.cardsToTrade.size()) {
+			return Result.failed("There are not enough cards left in the deck.");
 		}
+		this.cardsToTrade.forEach(c -> changeCard(c, player, deck));
+		return Result.SUCCESS;
 	}
 
+	private static void changeCard(Card c, Player p, Deck d) {
+		p.removeCard(c);
+		d.addToBottom(c);
+		p.giveCard(d.next());
+	}
 }
