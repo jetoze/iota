@@ -45,6 +45,10 @@ public final class PlayerArea {
 		return p;
 	}
 
+	public Player getPlayer() {
+		return player;
+	}
+	
 	public JComponent getUi() {
 		return canvas;
 	}
@@ -59,6 +63,14 @@ public final class PlayerArea {
 	
 	public void dispose() {
 		this.player.removeObserver(uiUpdater);
+	}
+	
+	public void addCardListener(GridUiListener lst) {
+		this.cards.addListener(lst);
+	}
+	
+	public void removeCardListener(GridUiListener lst) {
+		this.cards.removeListener(lst);
 	}
 	
 	
@@ -84,5 +96,6 @@ public final class PlayerArea {
 			});
 		}
 	}
+	
 	
 }

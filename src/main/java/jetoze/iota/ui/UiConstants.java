@@ -28,8 +28,6 @@ public final class UiConstants {
 	
 	public static final java.awt.Color GRID_COLOR = java.awt.Color.BLACK;
 	
-	public static final java.awt.Color CARD_BORDER_COLOR = java.awt.Color.LIGHT_GRAY;
-	
 	public static final java.awt.Color CARD_BACKGROUND = new java.awt.Color(250, 250, 250);
 	
 	public static final java.awt.Color BACK_OF_CARD_COLOR = new java.awt.Color(0, 51, 102);
@@ -47,6 +45,12 @@ public final class UiConstants {
 		g.setColor(awt);
 	}
 
+	public static java.awt.Color getBorderColor(CardUi card) {
+		return card.isSelected()
+				? java.awt.Color.RED.darker()
+				: java.awt.Color.LIGHT_GRAY;
+	}
+	
 	public static int getFaceValueMarkerSize(Shape cardShape) {
 		return (cardShape == Shape.CROSS)
 				? 10
