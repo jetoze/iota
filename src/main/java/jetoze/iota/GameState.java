@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import jetoze.iota.GameAction.Result;
+
 public final class GameState {
 
 	private final Player player1 = new Player("John");
@@ -42,8 +44,12 @@ public final class GameState {
 	}
 	
 	public void completeTurn(GameAction action) {
-		action.invoke(playerInTurn, grid, deck);
-		switchPlayer();
+		Result result = action.invoke(playerInTurn, grid, deck);
+		if (result.isSuccess()) {
+			switchPlayer();
+		} else {
+			// TODO: Display error.
+		}
 	}
 
 	private void switchPlayer() {
