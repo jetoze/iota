@@ -1,12 +1,6 @@
-package jetoze.iota.ui;
+package jetoze.iota;
 
 import javax.annotation.Nullable;
-
-import jetoze.iota.Card;
-import jetoze.iota.Deck;
-import jetoze.iota.LineItem;
-import jetoze.iota.Player;
-import jetoze.iota.Position;
 
 public interface GameStateObserver {
 

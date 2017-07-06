@@ -1,9 +1,10 @@
 package jetoze.iota;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Nullable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class GameState {
 
@@ -16,11 +17,12 @@ public final class GameState {
 	private final Grid grid = new Grid();
 	
 	private Player playerInTurn = player1;
-	
-	@Nullable
-	private Card selectedPlayerCard;
+
+	private final List<LineItem> selectedPlayerCards = new ArrayList<>();
 	
 	private final List<LineItem> placedCards = new ArrayList<>();
+	
+	private final List<GameStateObserver> observers = new CopyOnWriteArrayList<>();
 	
 	public GameState() {
 		giveCardsToPlayers();
@@ -45,9 +47,26 @@ public final class GameState {
 	}
 
 	private void switchPlayer() {
+		doPostTurnCleanup();
 		this.playerInTurn = (this.playerInTurn == this.player1)
 				? this.player2
 				: this.player1;
+		this.observers.forEach(o -> o.playerInTurnChanged(this.playerInTurn));
+	}
+	
+	private void doPostTurnCleanup() {
+		this.selectedPlayerCards.clear();
+		this.placedCards.clear();
+	}
+
+	public void addObserver(GameStateObserver o) {
+		checkNotNull(o);
+		this.observers.add(o);
+	}
+	
+	public void removeObserver(GameStateObserver o) {
+		checkNotNull(o);
+		this.observers.remove(o);
 	}
 	
 }

@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+import com.google.common.collect.ImmutableList;
+
 import jetoze.iota.Player;
 
 public final class GameBoard {
@@ -22,6 +24,10 @@ public final class GameBoard {
 		this.grid = checkNotNull(grid);
 		this.controlPanel = checkNotNull(controlPanel);
 		playerAreas.forEach(pa -> GameBoard.this.playerAreas.put(pa.getPlayer(), pa));
+	}
+	
+	public ImmutableList<PlayerArea> getPlayerAreas() {
+		return ImmutableList.copyOf(playerAreas.values());
 	}
 	
 	public JComponent layout() {
