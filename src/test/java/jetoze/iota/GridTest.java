@@ -395,10 +395,6 @@ public class GridTest {
 			return start(Orientation.HORIZONTAL, firstCard, row, col);
 		}
 		
-		public static LineBuilder vertical(Card firstCard, int row, int col) {
-			return start(Orientation.VERTICAL, firstCard, row, col);
-		}
-		
 		public static LineBuilder start(Orientation orientation,
 				   Card firstCard, int row, int col) {
 			LineBuilder b = new LineBuilder(orientation);

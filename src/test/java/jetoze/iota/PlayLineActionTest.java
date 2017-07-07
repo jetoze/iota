@@ -28,8 +28,6 @@ public final class PlayLineActionTest {
 	
 	private Grid grid;
 	
-	private Deck deck;
-	
 	@Before
 	public void setup() {
 		player = new Player("Wallace");
