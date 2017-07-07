@@ -62,6 +62,10 @@ public class Player {
 		return this.cards.size() < Constants.NUMBER_OF_CARDS_PER_PLAYER;
 	}
 	
+	public boolean noCardsLeft() {
+		return this.cards.isEmpty();
+	}
+	
 	public ImmutableList<Card> getCards() {
 		return ImmutableList.copyOf(this.cards);
 	}
