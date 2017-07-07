@@ -57,4 +57,8 @@ public final class Deck {
 		toAdd.forEach(c -> cards.add(0, c));
 	}
 	
+	public Card peek() {
+		return cards.get(cards.size() - 1);
+	}
+	
 }

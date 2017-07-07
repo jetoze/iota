@@ -45,6 +45,12 @@ public class Player {
 		this.observers.forEach(o -> o.gotCard(Player.this, card));
 	}
 	
+	public void giveCards(Card... cards) {
+		for (Card c : cards) {
+			giveCard(c);
+		}
+	}
+	
 	public void removeCard(Card card) {
 		checkNotNull(card);
 		if (this.cards.remove(card)) {
