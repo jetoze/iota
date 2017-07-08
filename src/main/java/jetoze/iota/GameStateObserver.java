@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 public interface GameStateObserver {
 
+	void gameHasStarted(GameState initialState);
+	
 	void playerInTurnChanged(Player player);
 	
 	void selectedPlayerCardChanged(@Nullable Card selected, @Nullable Position position);

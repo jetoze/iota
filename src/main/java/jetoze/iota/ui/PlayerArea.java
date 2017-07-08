@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import jetoze.iota.Card;
+import jetoze.iota.PlacedCard;
 import jetoze.iota.Player;
 import jetoze.iota.PlayerObserver;
 import jetoze.iota.Position;
@@ -90,12 +91,11 @@ public final class PlayerArea {
 		}
 
 		@Override
-		public void playedCard(Player player, Card card) {
+		public void playedCard(Player player, PlacedCard placedCard) {
 			UiThread.run(() -> {
-				cards.removeCard(card);
+				cards.removeCard(placedCard.getCard());
 			});
 		}
 	}
-	
 	
 }

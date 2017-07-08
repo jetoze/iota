@@ -6,6 +6,6 @@ public interface PlayerObserver {
 	
 	void gotCard(Player player, Card card);
 	
-	void playedCard(Player player, Card card);
+	void playedCard(Player player, PlacedCard placedCard);
 	
 }

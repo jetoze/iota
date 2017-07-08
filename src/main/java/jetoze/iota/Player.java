@@ -4,10 +4,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 
 public class Player {
@@ -16,7 +17,7 @@ public class Player {
 	
 	private int points;
 	
-	private final List<Card> cards = new ArrayList<>();
+	private final Card[] cards = new Card[Constants.NUMBER_OF_CARDS_PER_PLAYER];
 	
 	private final List<PlayerObserver> observers = new CopyOnWriteArrayList<>();
 	
@@ -40,9 +41,14 @@ public class Player {
 
 	public void giveCard(Card card) {
 		checkNotNull(card);
-		checkState(this.needsCards());
-		this.cards.add(card);
-		this.observers.forEach(o -> o.gotCard(Player.this, card));
+		for (int n = 0; n < cards.length; ++n) {
+			if (cards[n] == null) {
+				cards[n] = card;
+				this.observers.forEach(o -> o.gotCard(Player.this, card));
+				return;
+			}
+		}
+		checkState(false, "The hand was alread full");
 	}
 	
 	public void giveCards(Card... cards) {
@@ -53,21 +59,44 @@ public class Player {
 	
 	public void removeCard(Card card) {
 		checkNotNull(card);
-		if (this.cards.remove(card)) {
-			this.observers.forEach(o -> o.playedCard(Player.this, card));
+		for (int n = 0; n < cards.length; ++n) { 
+			if (cards[n] == card) {
+				cards[n] = null;
+			}
 		}
+	}
+
+	public PlacedCard placeOnBoard(Card card, Position positionOnBoard) {
+		checkNotNull(card);
+		checkNotNull(positionOnBoard);
+		for (int n = 0; n < cards.length; ++n) {
+			if (cards[n] == card) {
+				cards[n] = null;
+				PlacedCard placedCard = new PlacedCard(this, card, new Position(0, n), positionOnBoard);
+				this.observers.forEach(o -> o.playedCard(Player.this, placedCard));
+				return placedCard;
+			}
+		}
+		throw new IllegalArgumentException("No such card");
 	}
 	
 	public boolean needsCards() {
-		return this.cards.size() < Constants.NUMBER_OF_CARDS_PER_PLAYER;
+		return Arrays.stream(cards).anyMatch(Predicates.isNull());
 	}
 	
 	public boolean noCardsLeft() {
-		return this.cards.isEmpty();
+		return Arrays.stream(cards).allMatch(Predicates.isNull());
 	}
 	
 	public ImmutableList<Card> getCards() {
 		return ImmutableList.copyOf(this.cards);
+	}
+	
+	public void returnCard(Card card, Position positionInHand) {
+		checkNotNull(card);
+		checkArgument(positionInHand.row == 0, "Not a valid position");
+		checkArgument(this.cards[positionInHand.col] == null, "Already a card at this position");
+		this.cards[positionInHand.col] = card;
 	}
 
 	public void addObserver(PlayerObserver o) {
