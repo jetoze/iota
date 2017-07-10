@@ -89,7 +89,13 @@ public class Player {
 	}
 	
 	public ImmutableList<Card> getCards() {
-		return ImmutableList.copyOf(this.cards);
+		ImmutableList.Builder<Card> builder = ImmutableList.builder();
+		for (Card c : this.cards) {
+			if (c != null) {
+				builder.add(c);
+			}
+		}
+		return builder.build();
 	}
 	
 	public void returnCard(Card card, Position positionInHand) {
