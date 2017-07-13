@@ -4,19 +4,19 @@ import javax.annotation.Nullable;
 
 public interface GameStateObserver {
 
-	void gameHasStarted(GameState initialState);
+	default void gameHasStarted(GameState initialState) {/**/}
 	
-	void playerInTurnChanged(Player player);
+	default void playerInTurnChanged(Player player) {/**/}
 	
-	void selectedPlayerCardChanged(@Nullable Card selected, @Nullable Position position);
+	default void selectedPlayerCardChanged(@Nullable Card selected, @Nullable Position position) {/**/}
 	
-	void cardWasPlacedOnBoard(Card card, Position positionOnBoard);
+	default void cardWasPlacedOnBoard(Card card, Position positionOnBoard) {/**/}
 	
 	// TODO: This is not enough. We want to return the card to the same location
 	// on the player's grid that it originated from.
-	void cardWasRemovedFromBoard(Card card, Position positionOnBoard);
+	default void cardWasRemovedFromBoard(Card card, Position positionOnBoard) {/**/}
 	
 	// Allows us to disable the Get New Cards button when the deck becomes empty.
-	void cardsWereDealtToPlayer(Deck deck);
+	default void cardsWereDealtToPlayer(Deck deck) {/**/}
 	
 }

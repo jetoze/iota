@@ -4,8 +4,8 @@ import jetoze.iota.Position;
 
 public interface GridUiListener {
 
-	void emptyCellWasClickedOn(Position pos, int numberOfClicks);
+	default void emptyCellWasClickedOn(Position pos, int numberOfClicks) {/**/}
 	
-	void cardWasClickedOn(CardUi cardUi, int numberOfClicks);
+	default void cardWasClickedOn(CardUi cardUi, int numberOfClicks) {/**/}
 	
 }

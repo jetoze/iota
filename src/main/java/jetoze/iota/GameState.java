@@ -4,7 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.collect.ImmutableList;
@@ -21,7 +24,7 @@ public final class GameState {
 	
 	private Player playerInTurn;
 
-	private final List<LineItem> selectedPlayerCards = new ArrayList<>();
+	private final Set<Card> selectedPlayerCards = new HashSet<>();
 	
 	private final List<LineItem> placedCards = new ArrayList<>();
 	
@@ -60,6 +63,31 @@ public final class GameState {
 		}
 		return result;
 	}
+	
+	public void addSelectedPlayerCard(Card card) {
+		checkNotNull(card);
+		this.selectedPlayerCards.add(card);
+	}
+	
+	public void removeSelectedPlayerCard(Card card) {
+		checkNotNull(card);
+		this.selectedPlayerCards.remove(card);
+	}
+	
+	public int getNumberOfSelectedPlayerCards() {
+		return this.selectedPlayerCards.size();
+	}
+	
+	public Optional<Card> getOnlySelectedPlayerCard() {
+		return this.selectedPlayerCards.size() == 1
+				? Optional.of(this.selectedPlayerCards.iterator().next())
+				: Optional.empty();
+	}
+	
+	public void addPlacedCard(PlacedCard pc) {
+		checkNotNull(pc);
+		// TODO: Complete me. This includes notifying observers.
+	}
 
 	private void switchPlayer() {
 		doPostTurnCleanup();
@@ -97,6 +125,10 @@ public final class GameState {
 	
 	public Grid getGrid() {
 		return grid;
+	}
+	
+	public Player getActivePlayer() {
+		return playerInTurn;
 	}
 	
 	public ImmutableList<Player> getPlayers() {

@@ -59,7 +59,10 @@ public final class PlayerArea {
 	}
 
 	public void hideCards() {
-		this.cards.allCardUis().forEach(c -> c.setFaceUp(false));
+		this.cards.allCardUis().forEach(c -> {
+			c.setFaceUp(false);
+			c.setSelected(false);
+		});
 	}
 	
 	public void dispose() {
