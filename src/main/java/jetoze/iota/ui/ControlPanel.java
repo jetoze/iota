@@ -2,7 +2,6 @@ package jetoze.iota.ui;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 public final class ControlPanel {
 

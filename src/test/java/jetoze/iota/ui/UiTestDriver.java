@@ -28,18 +28,6 @@ public final class UiTestDriver {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
 		gridUi.setGameBoard(true);
 		gridUi.addCard(new CardUi(deck.next()), 0, 0);
-		gridUi.addListener(new GridUiListener() {
-			
-			@Override
-			public void emptyCellWasClickedOn(Position pos, int numberOfClicks) {
-				System.out.println("Clicked on cell " + pos + ". Click count: " + numberOfClicks);
-			}
-			
-			@Override
-			public void cardWasClickedOn(CardUi cardUi, int numberOfClicks) {
-				cardUi.toggleSelection();
-			}
-		});
 		GameState gameState = new GameState(Arrays.asList(player1, player2));
 		ControlPanel controlPanel = new ControlPanel();
 		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, Arrays.asList(

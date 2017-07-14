@@ -1,10 +1,13 @@
 package jetoze.iota;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,7 +28,7 @@ public final class GameState {
 
 	private final Set<Card> selectedPlayerCards = new HashSet<>();
 	
-	private final Set<PlacedCard> placedCards = new HashSet<>();
+	private final Map<Card, PlacedCard> placedCards = new HashMap<>();
 	
 	private final List<GameStateObserver> observers = new CopyOnWriteArrayList<>();
 	
@@ -93,13 +96,23 @@ public final class GameState {
 	
 	private void addPlacedCard(PlacedCard pc) {
 		checkNotNull(pc);
-		// TODO: More preconditions here. For example, it should not be possible to place 
-		// the same card on two different spots on the board.
-		if (this.placedCards.add(pc)) {
-			this.observers.forEach(o -> o.cardWasPlacedOnBoard(pc.getCard(), pc.getPositionOnBoard()));
-		}
+		checkArgument(!this.placedCards.containsKey(pc.getCard()));
+		this.placedCards.put(pc.getCard(), pc);
+		this.observers.forEach(o -> o.cardWasPlacedOnBoard(pc.getCard(), pc.getPositionOnBoard()));
 	}
 
+	public boolean isPlacedCard(Card card) {
+		checkNotNull(card);
+		return this.placedCards.containsKey(card);
+	}
+	
+	public void returnPlacedCard(Card card) {
+		PlacedCard pc = this.placedCards.remove(card);
+		checkArgument(pc != null, "Not a placed card");
+		pc.returnToHand();
+		this.observers.forEach(o -> o.cardWasRemovedFromBoard(card, pc.getPositionOnBoard()));
+	}
+	
 	private void switchPlayer() {
 		doPostTurnCleanup();
 		int nextPlayerIndex = (this.players.indexOf(this.playerInTurn) + 1) % this.players.size();

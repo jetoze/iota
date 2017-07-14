@@ -93,6 +93,13 @@ public final class GameBoard {
 				gameState.placeSelectedCard(pos);
 			}
 		}
+
+		@Override
+		public void cardWasClickedOn(CardUi cardUi, int numberOfClicks) {
+			if (numberOfClicks == 2 && gameState.isPlacedCard(cardUi.getCard())) {
+				gameState.returnPlacedCard(cardUi.getCard());
+			}
+		}
 	}
 	
 	
@@ -114,7 +121,9 @@ public final class GameBoard {
 
 		@Override
 		public void cardWasPlacedOnBoard(Card card, Position positionOnBoard) {
-			gridUi.addCard(new CardUi(card), positionOnBoard);
+			CardUi cardUi = new CardUi(card);
+			gridUi.addCard(cardUi, positionOnBoard);
+			cardUi.setSelected(true);
 		}
 
 		@Override

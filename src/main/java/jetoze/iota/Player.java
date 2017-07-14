@@ -46,7 +46,8 @@ public class Player {
 		for (int n = 0; n < cards.length; ++n) {
 			if (cards[n] == null) {
 				cards[n] = card;
-				this.observers.forEach(o -> o.gotCard(Player.this, card));
+				int positionInHand = n;
+				this.observers.forEach(o -> o.gotCard(Player.this, card, positionInHand));
 				return;
 			}
 		}
@@ -105,6 +106,7 @@ public class Player {
 		checkArgument(positionInHand.row == 0, "Not a valid position");
 		checkArgument(this.cards[positionInHand.col] == null, "Already a card at this position");
 		this.cards[positionInHand.col] = card;
+		this.observers.forEach(o -> o.gotCard(this, card, positionInHand.col));
 	}
 
 	public void addObserver(PlayerObserver o) {

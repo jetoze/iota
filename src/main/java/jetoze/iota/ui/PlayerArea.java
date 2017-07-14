@@ -86,9 +86,9 @@ public final class PlayerArea {
 		}
 
 		@Override
-		public void gotCard(Player player, Card card) {
+		public void gotCard(Player player, Card card, int positionInHand) {
 			UiThread.run(() -> {
-				Position pos = cards.firstAvailablePosition().orElseThrow(IllegalStateException::new);
+				Position pos = new Position(0, positionInHand);
 				cards.addCard(new CardUi(card), pos);
 			});
 		}
