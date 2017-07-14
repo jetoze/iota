@@ -3,6 +3,7 @@ package jetoze.iota;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toList;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +59,16 @@ public final class GameState {
 		grid.start(card);
 	}
 	
+	public Optional<PlayLineAction> getPlayLineAction() {
+		if (placedCards.isEmpty()) {
+			return Optional.empty();
+		}
+		List<LineItem> lineItems = placedCards.values().stream()
+				.map(PlacedCard::asLineItemForBoard)
+				.collect(toList());
+		return Optional.of(new PlayLineAction(lineItems));
+	}
+	
 	public Result completeTurn(GameAction action) {
 		Result result = action.invoke(playerInTurn, grid, deck);
 		if (result.isSuccess()) {
@@ -84,6 +95,10 @@ public final class GameState {
 		return this.selectedPlayerCards.size() == 1
 				? Optional.of(this.selectedPlayerCards.iterator().next())
 				: Optional.empty();
+	}
+	
+	public int getNumberOfPlacedCards() {
+		return placedCards.size();
 	}
 	
 	public void placeSelectedCard(Position positionOnBoard) {

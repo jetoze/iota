@@ -1,6 +1,6 @@
 package jetoze.iota;
 
-import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableSet;
 
 public interface GameStateObserver {
 
@@ -8,7 +8,7 @@ public interface GameStateObserver {
 	
 	default void playerInTurnChanged(Player player) {/**/}
 	
-	default void selectedPlayerCardChanged(@Nullable Card selected, @Nullable Position position) {/**/}
+	default void selectedPlayerCardChanged(ImmutableSet<Card> selectedCards) {/**/}
 	
 	default void cardWasPlacedOnBoard(Card card, Position positionOnBoard) {/**/}
 	

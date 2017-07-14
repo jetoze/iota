@@ -117,6 +117,7 @@ public final class GameBoard {
 					pa.hideCards();
 				}
 			}
+			gridUi.allCardUis().forEach(c -> c.setSelected(false));
 		}
 
 		@Override

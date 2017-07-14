@@ -6,7 +6,10 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 
+import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
@@ -165,6 +168,17 @@ public class Layouts {
 			return this;
 		}
 		
+		public GridLayoutBuilder add(Object o) {
+			return add(toComponent(o));
+		}
+		
+		public GridLayoutBuilder addAll(Object... objs) {
+			for (Object o : objs) {
+				add(o);
+			}
+			return this;
+		}
+		
 		public GridLayoutBuilder add(LayoutBuilder lb) {
 			return add(lb.container());
 		}
@@ -185,6 +199,21 @@ public class Layouts {
 		}
 	}
 	
+	
+	private static Component toComponent(Object o) {
+		checkNotNull(o);
+		if (o instanceof Component) {
+			return (Component) o;
+		} else if (o instanceof String) {
+			return new JLabel((String) o);
+		} else if (o instanceof Action) {
+			return new JButton((Action) o);
+		} else if (o instanceof LayoutBuilder) {
+			return ((LayoutBuilder) o).container();
+		} else {
+			throw new IllegalArgumentException("I do not know how to add an object of type " + o.getClass().getName());
+		}
+	}
 	
 	private Layouts() {/**/}
 

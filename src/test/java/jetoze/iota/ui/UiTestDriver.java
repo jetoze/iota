@@ -29,7 +29,7 @@ public final class UiTestDriver {
 		gridUi.setGameBoard(true);
 		gridUi.addCard(new CardUi(deck.next()), 0, 0);
 		GameState gameState = new GameState(Arrays.asList(player1, player2));
-		ControlPanel controlPanel = new ControlPanel();
+		ControlPanel controlPanel = new ControlPanel(gameState);
 		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, Arrays.asList(
 				new PlayerArea(player1), new PlayerArea(player2)));
 		JFrame frame = new JFrame();
