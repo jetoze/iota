@@ -1,7 +1,5 @@
 package jetoze.iota.ui;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,7 +14,7 @@ public final class PlayerArea {
 
 	private final Player player;
 	
-	private final JPanel canvas = new JPanel();
+	private final JComponent canvas;
 	
 	private final GridUi cards = new GridUi(1, 4);
 	
@@ -27,15 +25,23 @@ public final class PlayerArea {
 	public PlayerArea(Player player) {
 		this.player = player;
 		this.points.setText(String.valueOf(player.getPoints()));
-		this.canvas.setLayout(new BorderLayout());
-		this.canvas.add(wrap(cards), BorderLayout.NORTH);
-		this.canvas.add(wrap(new JLabel("Points: "), this.points), BorderLayout.SOUTH);
+		this.canvas = Layouts.border()
+			.north(wrap(cards))
+			.south(wrap(nameLabel(player), new JLabel("Points: "), this.points))
+			.container();
 		int col = 0;
 		for (Card card : player.getCards()) {
 			cards.addCard(new CardUi(card), 0, col);
 			++col;
 		}
 		this.player.addObserver(uiUpdater);
+	}
+	
+	private static JLabel nameLabel(Player player) {
+		JLabel lbl = Fonts.boldify(new JLabel());
+		lbl.setText(player.getName());
+		lbl.setBorder(Borders.empty(0, 0, 0, 20));
+		return lbl;
 	}
 	
 	private static JPanel wrap(JComponent...components) {
