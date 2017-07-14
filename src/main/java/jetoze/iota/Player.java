@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 
@@ -113,5 +115,23 @@ public class Player {
 	public void removeObserver(PlayerObserver o) {
 		checkNotNull(o);
 		this.observers.remove(o);
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public boolean equals(@Nullable Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		return (obj instanceof Player) && this.name.equals(((Player) obj).name);
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 }

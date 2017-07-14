@@ -4,13 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.util.Arrays;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
-import jetoze.iota.Constants;
 import jetoze.iota.Deck;
+import jetoze.iota.GameState;
 import jetoze.iota.Player;
 import jetoze.iota.Position;
 
@@ -26,13 +23,6 @@ public final class UiTestDriver {
 	private final Player player2 = new Player("Alice");
 	
 	private final Deck deck = Deck.shuffled();
-	
-	public UiTestDriver() {
-		for (int n = 0; n < Constants.NUMBER_OF_CARDS_PER_PLAYER; ++n) {
-			player1.giveCard(deck.next());
-			player2.giveCard(deck.next());
-		}
-	}
 	
 	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
@@ -50,8 +40,9 @@ public final class UiTestDriver {
 				cardUi.toggleSelection();
 			}
 		});
+		GameState gameState = new GameState(Arrays.asList(player1, player2));
 		ControlPanel controlPanel = new ControlPanel();
-		GameBoard gameBoard = new GameBoard(gridUi, controlPanel, Arrays.asList(
+		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, Arrays.asList(
 				new PlayerArea(player1), new PlayerArea(player2)));
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,6 +50,7 @@ public final class UiTestDriver {
 		frame.setSize(1000, 1000);
 		frame.setVisible(true);
 		gridUi.scrollToVisible(new Position(0, 0), new Position(8, 8));
+		gameState.start();
 	}
 
 }

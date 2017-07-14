@@ -3,7 +3,6 @@ package jetoze.iota;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +25,7 @@ public final class GameState {
 
 	private final Set<Card> selectedPlayerCards = new HashSet<>();
 	
-	private final List<LineItem> placedCards = new ArrayList<>();
+	private final Set<PlacedCard> placedCards = new HashSet<>();
 	
 	private final List<GameStateObserver> observers = new CopyOnWriteArrayList<>();
 	
@@ -40,9 +39,9 @@ public final class GameState {
 	}
 
 	public void start() {
-		this.playerInTurn = this.players.get(0);
 		giveCardsToPlayers();
 		placeFirstCard();
+		setPlayerInTurn(0);
 	}
 	
 	private void giveCardsToPlayers() {
@@ -84,15 +83,31 @@ public final class GameState {
 				: Optional.empty();
 	}
 	
-	public void addPlacedCard(PlacedCard pc) {
+	public void placeSelectedCard(Position positionOnBoard) {
+		getOnlySelectedPlayerCard().ifPresent(card -> {
+			PlacedCard placedCard = playerInTurn.placeOnBoard(card, positionOnBoard);
+			addPlacedCard(placedCard);
+			selectedPlayerCards.remove(card);
+		});
+	}
+	
+	private void addPlacedCard(PlacedCard pc) {
 		checkNotNull(pc);
-		// TODO: Complete me. This includes notifying observers.
+		// TODO: More preconditions here. For example, it should not be possible to place 
+		// the same card on two different spots on the board.
+		if (this.placedCards.add(pc)) {
+			this.observers.forEach(o -> o.cardWasPlacedOnBoard(pc.getCard(), pc.getPositionOnBoard()));
+		}
 	}
 
 	private void switchPlayer() {
 		doPostTurnCleanup();
 		int nextPlayerIndex = (this.players.indexOf(this.playerInTurn) + 1) % this.players.size();
-		this.playerInTurn = this.players.get(nextPlayerIndex);
+		setPlayerInTurn(nextPlayerIndex);
+	}
+
+	private void setPlayerInTurn(int index) {
+		this.playerInTurn = this.players.get(index);
 		this.observers.forEach(o -> o.playerInTurnChanged(this.playerInTurn));
 	}
 	

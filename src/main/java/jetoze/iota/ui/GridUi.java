@@ -91,6 +91,7 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		card.addMouseListener(mouseClickRouter);
 		this.posToCardUi.put(internalPos, card);
 		this.cardToPos.put(card.getCard(), internalPos);
+		repaint();
 	}
 
 	private void removeCard(CardUi card) {
@@ -165,6 +166,7 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		CardUi cardUi = this.posToCardUi.remove(pos);
 		assert cardUi != null;
 		remove(cardUi);
+		repaint();
 		return true;
 	}
 	
