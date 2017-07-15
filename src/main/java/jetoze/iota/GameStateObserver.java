@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 
 public interface GameStateObserver {
 
-	default void gameHasStarted(GameState initialState) {/**/}
+	default void gameHasStarted(GameState gameState, Card startCard) {/**/}
 	
 	default void playerInTurnChanged(Player player) {/**/}
 	

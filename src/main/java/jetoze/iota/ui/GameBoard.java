@@ -106,6 +106,11 @@ public final class GameBoard {
 	private class GameStateObserverImpl implements GameStateObserver {
 
 		@Override
+		public void gameHasStarted(GameState gameState, Card startCard) {
+			gridUi.addCard(new CardUi(startCard), 0, 0);
+		}
+
+		@Override
 		public void playerInTurnChanged(Player player) {
 			for (Map.Entry<Player, PlayerArea> e : playerAreas.entrySet()) {
 				PlayerArea pa = e.getValue();

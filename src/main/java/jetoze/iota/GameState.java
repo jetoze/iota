@@ -44,8 +44,9 @@ public final class GameState {
 
 	public void start() {
 		giveCardsToPlayers();
-		placeFirstCard();
+		Card startCard = placeFirstCard();
 		setPlayerInTurn(0);
+		observers.forEach(o -> o.gameHasStarted(this, startCard));
 	}
 	
 	private void giveCardsToPlayers() {
@@ -54,9 +55,10 @@ public final class GameState {
 		}
 	}
 	
-	private void placeFirstCard() {
+	private Card placeFirstCard() {
 		Card card = deck.next();
 		grid.start(card);
+		return card;
 	}
 	
 	public Optional<PlayLineAction> getPlayLineAction() {

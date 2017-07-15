@@ -27,7 +27,6 @@ public final class UiTestDriver {
 	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
 		gridUi.setGameBoard(true);
-		gridUi.addCard(new CardUi(deck.next()), 0, 0);
 		GameState gameState = new GameState(Arrays.asList(player1, player2));
 		ControlPanel controlPanel = new ControlPanel(gameState);
 		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, Arrays.asList(
