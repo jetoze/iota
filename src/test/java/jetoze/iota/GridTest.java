@@ -1,6 +1,15 @@
 package jetoze.iota;
 
 import static com.google.common.base.Preconditions.checkState;
+import static jetoze.iota.Card.newCard;
+import static jetoze.iota.Constants.Color.BLUE;
+import static jetoze.iota.Constants.Color.GREEN;
+import static jetoze.iota.Constants.Color.RED;
+import static jetoze.iota.Constants.Color.YELLOW;
+import static jetoze.iota.Constants.Shape.CIRCLE;
+import static jetoze.iota.Constants.Shape.CROSS;
+import static jetoze.iota.Constants.Shape.SQUARE;
+import static jetoze.iota.Constants.Shape.TRIANGLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +29,7 @@ public class GridTest {
 	@Test
 	public void ensureCardIsAllowedOnEmptyGrid() {
 		Grid grid = new Grid();
-		Card blueSquareOne = Card.newCard(Color.BLUE, Shape.SQUARE, 1);
+		Card blueSquareOne = newCard(BLUE, SQUARE, 1);
 		assertTrue(grid.isCardAllowed(blueSquareOne, 0, 0));
 		assertFalse(grid.isCardAllowed(blueSquareOne, 1, 0));
 		assertFalse(grid.isCardAllowed(blueSquareOne, 0, 1));
@@ -29,15 +38,15 @@ public class GridTest {
 	@Test
 	public void ensureTwoCardsCannotOccupyTheSameSpace() {
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
-		assertFalse(grid.isCardAllowed(Card.newCard(Color.GREEN, Shape.CROSS, 3), 0, 0));
+		grid.start(newCard(BLUE, SQUARE, 1));
+		assertFalse(grid.isCardAllowed(newCard(GREEN, CROSS, 3), 0, 0));
 	}
 	
 	@Test
 	public void ensureAllCardsAreConnected() {
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
-		assertFalse(grid.isCardAllowed(Card.newCard(Color.GREEN, Shape.CROSS, 3), 2, 4));
+		grid.start(newCard(BLUE, SQUARE, 1));
+		assertFalse(grid.isCardAllowed(newCard(GREEN, CROSS, 3), 2, 4));
 	}
 	
 	@Test
@@ -50,10 +59,10 @@ public class GridTest {
 	@Test
 	public void ensureFourCardsCanBePlacedInTwoRowsAndColumns() {
 		Grid grid = new Grid();
-		Card blueSquareOne = Card.newCard(Color.BLUE, Shape.SQUARE, 1);
-		Card blueTriangleThree = Card.newCard(Color.BLUE, Shape.TRIANGLE, 3);
-		Card yellowCircleTwo = Card.newCard(Color.YELLOW, Shape.CIRCLE, 2);
-		Card greenTriangleFour = Card.newCard(Color.GREEN, Shape.TRIANGLE, 4);
+		Card blueSquareOne = newCard(BLUE, SQUARE, 1);
+		Card blueTriangleThree = newCard(BLUE, TRIANGLE, 3);
+		Card yellowCircleTwo = newCard(YELLOW, CIRCLE, 2);
+		Card greenTriangleFour = newCard(GREEN, TRIANGLE, 4);
 		// Row 1: blue
 		// Row 2: unique
 		// Column 1: unique
@@ -79,17 +88,17 @@ public class GridTest {
 		//
 		// The wild card must be [B-Cr-AnyFaceValue] 
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 		int expectedPoints = 1 + 0 + 4;
 		int actualPoints = grid.addLine(
 				new LineItem(Card.wildcard(), 0, 1),
-				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 4), 0, 2));
+				new LineItem(newCard(BLUE, CROSS, 4), 0, 2));
 		assertEquals(expectedPoints, actualPoints);
 		
 		expectedPoints = 0 + 4 + 2;
 		actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CROSS, 4), 1, 1),
-				new LineItem(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1));
+				new LineItem(newCard(YELLOW, CROSS, 4), 1, 1),
+				new LineItem(newCard(RED, CROSS, 2), 2, 1));
 		assertEquals(expectedPoints, actualPoints);
 		
 		// Next, a case where one of the lines uses all unique properties
@@ -103,18 +112,18 @@ public class GridTest {
 		//
 		// The wild card must be [G/R-Cr-2/4] 
 		grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 
 		expectedPoints = 1 + 0 + 3;
 		actualPoints = grid.addLine(
 				new LineItem(Card.wildcard(), 0, 1),
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2));
+				new LineItem(newCard(YELLOW, CIRCLE, 3), 0, 2));
 		assertEquals(expectedPoints, actualPoints);
 
 		expectedPoints = 0 + 4 + 2;
 		actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CROSS, 4), 1, 1),
-				new LineItem(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1));
+				new LineItem(newCard(YELLOW, CROSS, 4), 1, 1),
+				new LineItem(newCard(RED, CROSS, 2), 2, 1));
 		assertEquals(expectedPoints, actualPoints);
 
 		// Next, a case where both lines uses all unique properties
@@ -128,17 +137,17 @@ public class GridTest {
 		//
 		// The wild card must be [G-Tr-1] 
 		grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 		
 		// Validated above
 		grid.addLine(
 				new LineItem(Card.wildcard(), 0, 1),
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2));
+				new LineItem(newCard(YELLOW, CIRCLE, 3), 0, 2));
 		
 		expectedPoints = 0 + 1 + 2;
 		actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 1), 1, 1),
-				new LineItem(Card.newCard(Color.RED, Shape.CROSS, 2), 2, 1));
+				new LineItem(newCard(YELLOW, CIRCLE, 1), 1, 1),
+				new LineItem(newCard(RED, CROSS, 2), 2, 1));
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
@@ -157,42 +166,42 @@ public class GridTest {
 		// The horizontal line mandates that the card must be [G-Tr-2]. The vertical line
 		// mandates that it must be [G-Sq-2]. This should not be allowed.
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 		
 		grid.addLine(
 				new LineItem(Card.wildcard(), 0, 1),
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 3), 0, 2),
-				new LineItem(Card.newCard(Color.RED, Shape.CROSS, 4), 0, 3));
+				new LineItem(newCard(YELLOW, CIRCLE, 3), 0, 2),
+				new LineItem(newCard(RED, CROSS, 4), 0, 3));
 
 		grid.addLine(
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 1), 1, 1),
-				new LineItem(Card.newCard(Color.RED, Shape.CROSS, 4), 2, 1));
+				new LineItem(newCard(YELLOW, CIRCLE, 1), 1, 1),
+				new LineItem(newCard(RED, CROSS, 4), 2, 1));
 		
-		assertFalse(grid.isCardAllowed(Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 3, 1));
+		assertFalse(grid.isCardAllowed(newCard(BLUE, TRIANGLE, 3), 3, 1));
 	}
 	
 	@Test
 	public void addSingleCardLine() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 
 		// [B-Sq-1] - *[B-Ci-4]*
 		int expectedPoints = 5;
 		int actualPoints = grid.addLine(new LineItem(
-				Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1));
+				newCard(BLUE, CIRCLE, 4), 0, 1));
 		assertEquals(expectedPoints, actualPoints);
 		
 		// [B-Sq-1] - [B-Ci-4] - *[B-Cr-2]*
 		expectedPoints = 7;
 		actualPoints = grid.addLine(new LineItem(
-				Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2));
+				newCard(BLUE, CROSS, 2), 0, 2));
 		assertEquals(expectedPoints, actualPoints);
 		
 		// *[B-Tr-3]* - [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
 		expectedPoints = (3 + 1 + 4 + 2) * 2 /*one lot*/;
 		actualPoints = grid.addLine(new LineItem(
-				Card.newCard(Color.BLUE, Shape.TRIANGLE, 3), 0, -1));
+				newCard(BLUE, TRIANGLE, 3), 0, -1));
 		assertEquals(expectedPoints, actualPoints);
 		
 		// *[G-Tr-1]*
@@ -200,7 +209,7 @@ public class GridTest {
 		//  [B-Tr-3] - [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
 		expectedPoints = 4;
 		actualPoints = grid.addLine(new LineItem(
-				Card.newCard(Color.GREEN, Shape.TRIANGLE, 1), -1, -1));
+				newCard(GREEN, TRIANGLE, 1), -1, -1));
 		assertEquals(expectedPoints, actualPoints);
 		
 		// [G-Tr-1] - *[R-Ci-2]*
@@ -208,7 +217,7 @@ public class GridTest {
 		// [B-Tr-3] -  [B-Sq-1] - [B-Ci-4] - [B-Cr-2]
 		expectedPoints = 6;
 		actualPoints = grid.addLine(new LineItem(
-				Card.newCard(Color.RED, Shape.CIRCLE, 2), -1, 0));
+				newCard(RED, CIRCLE, 2), -1, 0));
 		assertEquals(expectedPoints, actualPoints);
 	}
 
@@ -216,13 +225,13 @@ public class GridTest {
 	public void addMultiCardLine() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 
 		// [B-Sq-1] - *[B-Ci-4]* - *[B-Cr-2]*
 		int expectedPoints = 4 + 3;
 		int actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1),
-				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2));
+				new LineItem(newCard(BLUE, CIRCLE, 4), 0, 1),
+				new LineItem(newCard(BLUE, CROSS, 2), 0, 2));
 		assertEquals(expectedPoints, actualPoints);
 		
 		//  [B-Sq-1] -  [B-Ci-4] - [B-Cr-2]
@@ -230,8 +239,8 @@ public class GridTest {
 		// *[B-Cr-3] - *[Y-Ci-4]*
 		expectedPoints = (3 + 4) + (1 + 3) + (4 + 4);
 		actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 3), 1, 0),
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 4), 1, 1));
+				new LineItem(newCard(BLUE, CROSS, 3), 1, 0),
+				new LineItem(newCard(YELLOW, CIRCLE, 4), 1, 1));
 		assertEquals(expectedPoints, actualPoints);
 
 		// [B-Sq-1] - [B-Ci-4] -  [B-Cr-2]
@@ -244,8 +253,8 @@ public class GridTest {
 		expectedPoints = ((2 + 2 + 2) + (3 + 4)) * 2 /*one lot*/;
 		actualPoints = grid.addLine(
 				new LineItem(Card.wildcard(), 1, 2),
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 2), 2, 2),
-				new LineItem(Card.newCard(Color.RED, Shape.TRIANGLE, 2), 3, 2));
+				new LineItem(newCard(YELLOW, CIRCLE, 2), 2, 2),
+				new LineItem(newCard(RED, TRIANGLE, 2), 3, 2));
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
@@ -253,29 +262,29 @@ public class GridTest {
 	public void addedLineMustInFactBeALine() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 
 		// The following should not be allowed.
 		// *[B-Ci-2]*
 		//     |
 		//  [B-Sq-1] - *[G-Sq-2]*
 		grid.addLine(
-				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), -1, 0),
-				new LineItem(Card.newCard(Color.GREEN, Shape.SQUARE, 2), 0, 1));
+				new LineItem(newCard(BLUE, CIRCLE, 2), -1, 0),
+				new LineItem(newCard(GREEN, SQUARE, 2), 0, 1));
 	}
 	
 	@Test
 	public void orderShouldNotMatter() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 
 		// Create the following line, but pass in the third card first
 		// [B-Sq-1] - *[B-Ci-4]* - *[B-Cr-2]*
 		int expectedPoints = 1 + 4 + 2;
 		int actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, 2),
-				new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 4), 0, 1));
+				new LineItem(newCard(BLUE, CROSS, 2), 0, 2),
+				new LineItem(newCard(BLUE, CIRCLE, 4), 0, 1));
 		assertEquals(expectedPoints, actualPoints);
 		
 		// Create the following line, but pass in the cards bottom up
@@ -288,9 +297,9 @@ public class GridTest {
 		//                       *[R-Sq-2]*
 		expectedPoints = (2 + 2 + 2 + 2) * 2 /*one lot*/;
 		actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.RED, Shape.SQUARE, 2), 3, 2),
-				new LineItem(Card.newCard(Color.RED, Shape.TRIANGLE, 2), 2, 2),
-				new LineItem(Card.newCard(Color.YELLOW, Shape.CIRCLE, 2), 1, 2));
+				new LineItem(newCard(RED, SQUARE, 2), 3, 2),
+				new LineItem(newCard(RED, TRIANGLE, 2), 2, 2),
+				new LineItem(newCard(YELLOW, CIRCLE, 2), 1, 2));
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
@@ -298,14 +307,14 @@ public class GridTest {
 	public void addingInvalidLineShouldLeaveTheGridUntouched() {
 		// [B-Sq-1] - [B-Ci-2]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
-		grid.addLine(new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
+		grid.addLine(new LineItem(newCard(BLUE, CIRCLE, 2), 0, 1));
 		// The following should not be allowed.
 		// [B-Sq-1] - [B-Ci-2] - *[B-Cr-4]* - *[Y-TR-1]*
 		try {
 			grid.addLine(
-					new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 4), 0, 2),
-					new LineItem(Card.newCard(Color.YELLOW, Shape.TRIANGLE, 1), 0, 3));
+					new LineItem(newCard(BLUE, CROSS, 4), 0, 2),
+					new LineItem(newCard(YELLOW, TRIANGLE, 1), 0, 3));
 			fail();
 		} catch (InvalidLineException e) {
 			int expectedNumberOfCards = 2;
@@ -318,13 +327,13 @@ public class GridTest {
 	public void lineCanBeAddedToFromBothSides() {
 		// [B-Sq-1]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
 		
 		// *[B-Cr-2]* - [B-Sq-1] - *[B-Tr-2]*
 		int expectedPoints = 2 + 1 + 2;
 		int actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.BLUE, Shape.CROSS, 2), 0, -1),
-				new LineItem(Card.newCard(Color.BLUE, Shape.TRIANGLE, 2), 0, 1));
+				new LineItem(newCard(BLUE, CROSS, 2), 0, -1),
+				new LineItem(newCard(BLUE, TRIANGLE, 2), 0, 1));
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
@@ -332,18 +341,18 @@ public class GridTest {
 	public void fourLineCardDoublesThePoints() {
 		// [B-Sq-1] - [B-Ci-2]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
-		grid.addLine(new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
+		grid.addLine(new LineItem(newCard(BLUE, CIRCLE, 2), 0, 1));
 
 		// [G-Sq-2] - [G-Ci-3] - [  WC  ] - [G-Cr-4]
 		// [B-Sq-1] - [B-Ci-2]
 		int expectedPoints = ((2 + 1) + (3 + 2) + (2 + 3 + 0 + 4)) * 2 /*one lot*/
 				* 2 /*four-card line*/;
 		int actualPoints = grid.addLine(
-				new LineItem(Card.newCard(Color.GREEN, Shape.SQUARE, 2), -1, 0),
-				new LineItem(Card.newCard(Color.GREEN, Shape.CIRCLE, 3), -1, 1),
+				new LineItem(newCard(GREEN, SQUARE, 2), -1, 0),
+				new LineItem(newCard(GREEN, CIRCLE, 3), -1, 1),
 				new LineItem(Card.wildcard(), -1, 2),
-				new LineItem(Card.newCard(Color.GREEN, Shape.CROSS, 4), -1, 3));
+				new LineItem(newCard(GREEN, CROSS, 4), -1, 3));
 		assertEquals(expectedPoints, actualPoints);
 	}
 	
@@ -353,15 +362,15 @@ public class GridTest {
 		// [G-Sq-2] - [G-Ci-3]
 		// [R-Sq-3] - [R-Ci-1]
 		Grid grid = new Grid();
-		grid.start(Card.newCard(Color.BLUE, Shape.SQUARE, 1));
-		grid.addLine(new LineItem(Card.newCard(Color.BLUE, Shape.CIRCLE, 2), 0, 1));
+		grid.start(newCard(BLUE, SQUARE, 1));
+		grid.addLine(new LineItem(newCard(BLUE, CIRCLE, 2), 0, 1));
 		grid.addLine(LineBuilder.horizontal(
-				Card.newCard(Color.GREEN, Shape.SQUARE, 2), 1, 0)
-				.add(Color.GREEN, Shape.CIRCLE, 3)
+				newCard(GREEN, SQUARE, 2), 1, 0)
+				.add(GREEN, CIRCLE, 3)
 				.build());
 		grid.addLine(LineBuilder.horizontal(
-				Card.newCard(Color.RED, Shape.SQUARE, 3), 2, 0)
-				.add(Color.RED, Shape.CIRCLE, 1)
+				newCard(RED, SQUARE, 3), 2, 0)
+				.add(RED, CIRCLE, 1)
 				.build());
 
 		// [B-Sq-1] - [B-Ci-2]
@@ -370,9 +379,9 @@ public class GridTest {
 		// [B-Sq-4] - [  WC  ] - [Y-CR-4]
 		int expectedPoints = ((1 + 2 + 3 + 4) + (2 + 3 + 1) + (4 + 0 + 4)) * 2 * 2;
 		int actualPoints = grid.addLine(LineBuilder.horizontal(
-				Card.newCard(Color.BLUE, Shape.SQUARE, 4), 3, 0)
+				newCard(BLUE, SQUARE, 4), 3, 0)
 				.wildcard()
-				.add(Color.YELLOW, Shape.CROSS, 4)
+				.add(YELLOW, CROSS, 4)
 				.build());
 		assertEquals(expectedPoints, actualPoints);
 	}
@@ -403,7 +412,7 @@ public class GridTest {
 		}
 		
 		public LineBuilder add(Color color, Shape shape, int faceValue) {
-			return add(Card.newCard(color, shape, faceValue));
+			return add(newCard(color, shape, faceValue));
 		}
 		
 		public LineBuilder wildcard() {
