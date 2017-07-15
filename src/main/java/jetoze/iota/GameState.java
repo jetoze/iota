@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 
 import jetoze.iota.GameAction.Result;
@@ -27,7 +29,8 @@ public final class GameState {
 	
 	private Player playerInTurn;
 
-	private final Set<Card> selectedPlayerCards = new HashSet<>();
+	@Nullable
+	private Card selectedPlayerCard;
 	
 	private final Map<Card, PlacedCard> placedCards = new HashMap<>();
 	
@@ -79,24 +82,12 @@ public final class GameState {
 		return result;
 	}
 	
-	public void addSelectedPlayerCard(Card card) {
-		checkNotNull(card);
-		this.selectedPlayerCards.add(card);
+	public void setSelectedPlayerCard(@Nullable Card card) {
+		this.selectedPlayerCard = card;
 	}
 	
-	public void removeSelectedPlayerCard(Card card) {
-		checkNotNull(card);
-		this.selectedPlayerCards.remove(card);
-	}
-	
-	public int getNumberOfSelectedPlayerCards() {
-		return this.selectedPlayerCards.size();
-	}
-	
-	public Optional<Card> getOnlySelectedPlayerCard() {
-		return this.selectedPlayerCards.size() == 1
-				? Optional.of(this.selectedPlayerCards.iterator().next())
-				: Optional.empty();
+	public Optional<Card> getSelectedPlayerCard() {
+		return Optional.ofNullable(selectedPlayerCard);
 	}
 	
 	public int getNumberOfPlacedCards() {
@@ -104,10 +95,10 @@ public final class GameState {
 	}
 	
 	public void placeSelectedCard(Position positionOnBoard) {
-		getOnlySelectedPlayerCard().ifPresent(card -> {
+		getSelectedPlayerCard().ifPresent(card -> {
 			PlacedCard placedCard = playerInTurn.placeOnBoard(card, positionOnBoard);
 			addPlacedCard(placedCard);
-			selectedPlayerCards.remove(card);
+			setSelectedPlayerCard(null);
 		});
 	}
 	
@@ -172,7 +163,7 @@ public final class GameState {
 		// cards to his hands first, then play Pass. This is probably the better user
 		// experience anyway, especially since the player must be allowed to select 
 		// cards to exchange.
-		this.selectedPlayerCards.clear();
+		setSelectedPlayerCard(null);
 		this.placedCards.clear();
 	}
 	

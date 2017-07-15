@@ -72,14 +72,19 @@ public final class GameBoard {
 	
 	private class ActivePlayerAreaListener implements GridUiListener {
 
+		// TODO: PlayerArea.setSelectedCard should be called by the UiMediator, who should be
+		// notified through the GameStateObserver.
+		
 		@Override
 		public void cardWasClickedOn(CardUi cardUi, int numberOfClicks) {
+			PlayerArea pa = playerAreas.get(gameState.getActivePlayer());
+			assert pa != null;
 			if (cardUi.isSelected()) {
-				cardUi.setSelected(false);
-				gameState.removeSelectedPlayerCard(cardUi.getCard());
+				gameState.setSelectedPlayerCard(null);
+				pa.setSelectedCard(null);
 			} else {
-				cardUi.setSelected(true);
-				gameState.addSelectedPlayerCard(cardUi.getCard());
+				gameState.setSelectedPlayerCard(cardUi.getCard());
+				pa.setSelectedCard(cardUi.getCard());
 			}
 		}
 	}

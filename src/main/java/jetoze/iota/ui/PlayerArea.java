@@ -1,5 +1,6 @@
 package jetoze.iota.ui;
 
+import javax.annotation.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,6 +59,12 @@ public final class PlayerArea {
 	
 	public JComponent getUi() {
 		return canvas;
+	}
+	
+	public void setSelectedCard(@Nullable Card card) {
+		this.cards.allCardUis().forEach(c -> {
+			c.setSelected(c.getCard() == card);
+		});
 	}
 
 	public void showCards() {
