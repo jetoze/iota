@@ -121,14 +121,14 @@ public final class GameBoard {
 		}
 
 		@Override
-		public void cardWasPlacedOnBoard(Card card, Position positionOnBoard) {
+		public void cardWasPlacedOnBoard(Card card, Position positionOnBoard, int value) {
 			CardUi cardUi = new CardUi(card);
 			gridUi.addCard(cardUi, positionOnBoard);
 			cardUi.setSelected(true);
 		}
 
 		@Override
-		public void cardWasRemovedFromBoard(Card card, Position positionOnBoard) {
+		public void cardWasRemovedFromBoard(Card card, Position positionOnBoard, int value) {
 			gridUi.removeCard(card);
 		}
 	}

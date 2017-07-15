@@ -246,6 +246,13 @@ public final class Grid {
 		return p0;
 	}
 	
+	@Override
+	public Grid clone() {
+		Grid clone = new Grid();
+		clone.grid.putAll(this.grid);
+		return clone;
+	}
+	
 	
 	private class NewCardEffect {
 		

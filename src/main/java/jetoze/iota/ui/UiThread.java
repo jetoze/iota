@@ -3,6 +3,7 @@ package jetoze.iota.ui;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.EventQueue;
+import java.util.function.Consumer;
 
 public final class UiThread {
 	
@@ -21,6 +22,15 @@ public final class UiThread {
 	public static void runLater(Runnable r) {
 		checkNotNull(r);
 		EventQueue.invokeLater(r);
+	}
+	
+	// TODO: Come up with a better name.
+	public static <T> void provide(T value, Consumer<? super T> consumer) {
+		if (isUiThread()) {
+			consumer.accept(value);
+		} else {
+			runLater(() -> consumer.accept(value));
+		}
 	}
 	
 	private UiThread() {/**/}

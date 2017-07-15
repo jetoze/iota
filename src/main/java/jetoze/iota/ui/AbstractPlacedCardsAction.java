@@ -39,12 +39,12 @@ abstract class AbstractPlacedCardsAction extends AbstractAction {
 	private class StateListener implements GameStateObserver {
 
 		@Override
-		public void cardWasPlacedOnBoard(Card card, Position positionOnBoard) {
+		public void cardWasPlacedOnBoard(Card card, Position positionOnBoard, int value) {
 			updateEnabledState();
 		}
 
 		@Override
-		public void cardWasRemovedFromBoard(Card card, Position positionOnBoard) {
+		public void cardWasRemovedFromBoard(Card card, Position positionOnBoard, int value) {
 			updateEnabledState();
 		}
 	}

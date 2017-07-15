@@ -113,7 +113,23 @@ public final class GameState {
 		checkNotNull(pc);
 		checkArgument(!this.placedCards.containsKey(pc.getCard()));
 		this.placedCards.put(pc.getCard(), pc);
-		this.observers.forEach(o -> o.cardWasPlacedOnBoard(pc.getCard(), pc.getPositionOnBoard()));
+		int value = getValueOfCurrentlyPlacedCards();
+		this.observers.forEach(o -> o.cardWasPlacedOnBoard(pc.getCard(), pc.getPositionOnBoard(), value));
+	}
+	
+	private int getValueOfCurrentlyPlacedCards() {
+		if (placedCards.isEmpty()) {
+			return 0;
+		}
+		try {
+			Grid clone = grid.clone();
+			int value = clone.addLine(placedCards.values().stream()
+					.map(PlacedCard::asLineItemForBoard)
+					.collect(toList()));
+			return value;
+		} catch (InvalidLineException e) {
+			return 0;
+		}
 	}
 
 	public boolean isPlacedCard(Card card) {
@@ -125,7 +141,8 @@ public final class GameState {
 		PlacedCard pc = this.placedCards.remove(card);
 		checkArgument(pc != null, "Not a placed card");
 		pc.returnToHand();
-		this.observers.forEach(o -> o.cardWasRemovedFromBoard(card, pc.getPositionOnBoard()));
+		int value = getValueOfCurrentlyPlacedCards();
+		this.observers.forEach(o -> o.cardWasRemovedFromBoard(card, pc.getPositionOnBoard(), value));
 	}
 	
 	public void returnAllCards() {

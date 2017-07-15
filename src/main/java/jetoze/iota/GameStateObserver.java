@@ -10,11 +10,9 @@ public interface GameStateObserver {
 	
 	default void selectedPlayerCardChanged(ImmutableSet<Card> selectedCards) {/**/}
 	
-	default void cardWasPlacedOnBoard(Card card, Position positionOnBoard) {/**/}
+	default void cardWasPlacedOnBoard(Card card, Position positionOnBoard, int value) {/**/}
 	
-	// TODO: This is not enough. We want to return the card to the same location
-	// on the player's grid that it originated from.
-	default void cardWasRemovedFromBoard(Card card, Position positionOnBoard) {/**/}
+	default void cardWasRemovedFromBoard(Card card, Position positionOnBoard, int value) {/**/}
 	
 	// Allows us to disable the Get New Cards button when the deck becomes empty.
 	default void cardsWereDealtToPlayer(Deck deck) {/**/}
