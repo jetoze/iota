@@ -128,6 +128,11 @@ public final class GameState {
 		this.observers.forEach(o -> o.cardWasRemovedFromBoard(card, pc.getPositionOnBoard()));
 	}
 	
+	public void returnAllCards() {
+		Set<PlacedCard> pcs = new HashSet<>(placedCards.values());
+		pcs.stream().map(PlacedCard::getCard).forEach(this::returnPlacedCard);
+	}
+	
 	private void switchPlayer() {
 		doPostTurnCleanup();
 		int nextPlayerIndex = (this.players.indexOf(this.playerInTurn) + 1) % this.players.size();

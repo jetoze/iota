@@ -15,14 +15,17 @@ public final class ControlPanel {
 	
 	private final PlayLineUiAction playLineUiAction;
 	
+	private final RecallUiAction recallUiAction;
+	
 	public ControlPanel(GameState gameState) {
 		this.playLineUiAction = new PlayLineUiAction(gameState);
+		this.recallUiAction = new RecallUiAction(gameState);
 	}
 	
 	public JComponent layout() {
 		return Layouts.grid(4, 1, 0, 10)
 				.add(playLineUiAction)
-				.add(new JButton("Recall"))
+				.add(recallUiAction)
 				.add(new JButton("Get New Cards"))
 				.add(new JButton("Pass"))
 				.container();
@@ -30,6 +33,7 @@ public final class ControlPanel {
 
 	public void dispose() {
 		playLineUiAction.dispose();
+		recallUiAction.dispose();
 	}
 	
 }
