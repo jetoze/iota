@@ -2,7 +2,6 @@ package jetoze.iota.ui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
@@ -28,6 +27,8 @@ public final class ControlPanel {
 	
 	private final RecallUiAction recallUiAction;
 	
+	private final PassUiAction passUiAction;
+	
 	private final JLabel valueLabel = new JLabel("Value: ");
 	
 	private final JLabel cardsLeftLabel = new JLabel("Cards left: ");
@@ -38,6 +39,7 @@ public final class ControlPanel {
 		this.gameState = checkNotNull(gameState);
 		this.playLineUiAction = new PlayLineUiAction(gameState);
 		this.recallUiAction = new RecallUiAction(gameState);
+		this.passUiAction = new PassUiAction(gameState);
 		gameState.addObserver(valueLabelUpdater);
 	}
 	
@@ -45,7 +47,7 @@ public final class ControlPanel {
 		LayoutBuilder labels = Layouts.grid(1, 2).withHGap(25)
 				.addAll(valueLabel, cardsLeftLabel);
 		LayoutBuilder buttons = Layouts.grid(2, 2, 12, 12)
-				.addAll(playLineUiAction, recallUiAction, new JButton("Pass"), new JLabel(" "));
+				.addAll(playLineUiAction, recallUiAction, passUiAction, " ");
 		return Layouts.border().withVGap(12)
 				.north(labels)
 				.center(buttons)
