@@ -12,6 +12,7 @@ import jetoze.iota.GameState;
 import jetoze.iota.GameStateObserver;
 import jetoze.iota.Player;
 import jetoze.iota.Position;
+import jetoze.iota.ui.Layouts.LayoutBuilder;
 
 public final class ControlPanel {
 
@@ -41,12 +42,13 @@ public final class ControlPanel {
 	}
 	
 	public JComponent layout() {
-		return Layouts.grid(5, 1, 0, 10)
-				.add(Layouts.grid(1, 2).withHGap(25).addAll(valueLabel, cardsLeftLabel))
-				.add(playLineUiAction)
-				.add(recallUiAction)
-				.add(new JButton("Get New Cards"))
-				.add(new JButton("Pass"))
+		LayoutBuilder labels = Layouts.grid(1, 2).withHGap(25)
+				.addAll(valueLabel, cardsLeftLabel);
+		LayoutBuilder buttons = Layouts.grid(2, 2, 12, 12)
+				.addAll(playLineUiAction, recallUiAction, new JButton("Pass"), new JLabel(" "));
+		return Layouts.border().withVGap(12)
+				.north(labels)
+				.center(buttons)
 				.container();
 	}
 

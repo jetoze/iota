@@ -118,6 +118,16 @@ public class Layouts {
 			return center(lb.container());
 		}
 		
+		public BorderLayoutBuilder withHGap(int hGap) {
+			((BorderLayout) container.getLayout()).setHgap(hGap);
+			return this;
+		}
+		
+		public BorderLayoutBuilder withVGap(int vGap) {
+			((BorderLayout) container.getLayout()).setVgap(vGap);
+			return this;
+		}
+		
 		public BorderLayoutBuilder withBorder(Border b) {
 			container.setBorder(b);
 			return this;
