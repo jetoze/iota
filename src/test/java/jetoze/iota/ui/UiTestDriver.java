@@ -6,7 +6,6 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
-import jetoze.iota.Deck;
 import jetoze.iota.GameState;
 import jetoze.iota.Player;
 import jetoze.iota.Position;
@@ -21,8 +20,6 @@ public final class UiTestDriver {
 	private final Player player1 = new Player("John");
 	
 	private final Player player2 = new Player("Alice");
-	
-	private final Deck deck = Deck.shuffled();
 	
 	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
