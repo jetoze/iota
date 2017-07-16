@@ -7,8 +7,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import jetoze.iota.Card;
+import jetoze.iota.Deck;
 import jetoze.iota.GameState;
 import jetoze.iota.GameStateObserver;
+import jetoze.iota.Player;
 import jetoze.iota.Position;
 
 public final class ControlPanel {
@@ -25,9 +27,11 @@ public final class ControlPanel {
 	
 	private final RecallUiAction recallUiAction;
 	
-	private final JLabel valueLabel = new JLabel("Value:");
+	private final JLabel valueLabel = new JLabel("Value: ");
 	
-	private final ValueLabelUpdater valueLabelUpdater = new ValueLabelUpdater();
+	private final JLabel cardsLeftLabel = new JLabel("Cards left: ");
+	
+	private final ValueAndCardsLeftLabelsUpdater valueLabelUpdater = new ValueAndCardsLeftLabelsUpdater();
 	
 	public ControlPanel(GameState gameState) {
 		this.gameState = checkNotNull(gameState);
@@ -38,7 +42,7 @@ public final class ControlPanel {
 	
 	public JComponent layout() {
 		return Layouts.grid(5, 1, 0, 10)
-				.add(valueLabel)
+				.add(Layouts.grid(1, 2).withHGap(25).addAll(valueLabel, cardsLeftLabel))
 				.add(playLineUiAction)
 				.add(recallUiAction)
 				.add(new JButton("Get New Cards"))
@@ -53,7 +57,7 @@ public final class ControlPanel {
 	}
 	
 	
-	private class ValueLabelUpdater implements GameStateObserver {
+	private class ValueAndCardsLeftLabelsUpdater implements GameStateObserver {
 
 		@Override
 		public void cardWasPlacedOnBoard(Card card, Position positionOnBoard, int value) {
@@ -66,11 +70,29 @@ public final class ControlPanel {
 		}
 		
 		private void updateValue(int value) {
-			String text = "Value:";
+			String text = "Value: ";
 			if (value > 0) {
-				text += " " + value;
+				text += value;
 			}
-			UiThread.provide(text, valueLabel::setText); 
+			UiThread.supply(text, valueLabel::setText); 
+		}
+
+		@Override
+		public void gameHasStarted(GameState gameState, Card startCard) {
+			updateCardsLeft();
+		}
+
+		@Override
+		public void playerInTurnChanged(Player player) {
+			updateCardsLeft();
+			updateValue(0);
+		}
+
+		private void updateCardsLeft() {
+			Deck deck = gameState.getDeck();
+			int cardsLeft = deck.cardsLeft();
+			String text = "Cards left: " + cardsLeft;
+			UiThread.supply(text, cardsLeftLabel::setText);
 		}
 	}
 	

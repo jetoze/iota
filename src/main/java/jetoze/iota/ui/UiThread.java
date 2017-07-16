@@ -24,8 +24,7 @@ public final class UiThread {
 		EventQueue.invokeLater(r);
 	}
 	
-	// TODO: Come up with a better name.
-	public static <T> void provide(T value, Consumer<? super T> consumer) {
+	public static <T> void supply(T value, Consumer<? super T> consumer) {
 		if (isUiThread()) {
 			consumer.accept(value);
 		} else {

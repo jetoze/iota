@@ -14,7 +14,4 @@ public interface GameStateObserver {
 	
 	default void cardWasRemovedFromBoard(Card card, Position positionOnBoard, int value) {/**/}
 	
-	// Allows us to disable the Get New Cards button when the deck becomes empty.
-	default void cardsWereDealtToPlayer(Deck deck) {/**/}
-	
 }
