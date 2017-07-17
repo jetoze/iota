@@ -1,15 +1,17 @@
 package jetoze.iota.ui;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toList;
 
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
 
 import com.google.common.collect.ImmutableList;
 
@@ -34,6 +36,8 @@ public final class GameBoard {
 	
 	private final LinkedHashMap<Player, PlayerArea> playerAreas = new LinkedHashMap<>();
 	
+	private final PlayerAreaContainer playerAreaContainer;
+	
 	private final ActivePlayerAreaListener activePlayerAreaListener = new ActivePlayerAreaListener();
 	
 	private final GameStateObserverImpl gameStateObserver = new GameStateObserverImpl();
@@ -46,6 +50,10 @@ public final class GameBoard {
 		this.gameState = checkNotNull(gameState);
 		this.gridUi = checkNotNull(gridUi);
 		this.controlPanel = checkNotNull(controlPanel);
+		checkArgument(playerAreas.size() >= 2, "Requires at least two players");
+		this.playerAreaContainer = playerAreas.size() == 2
+				? new SideBySideTwoPlayersContainer(playerAreas)
+				: new PlayerAreaTabs(playerAreas);
 		playerAreas.forEach(pa -> GameBoard.this.playerAreas.put(pa.getPlayer(), pa));
 		this.gameState.addObserver(gameStateObserver);
 		this.gridUi.addListener(gridListener);
@@ -56,14 +64,9 @@ public final class GameBoard {
 	}
 	
 	public JComponent layout() {
-		checkState(playerAreas.size() == 2, "Only two players supported at the moment.");
-		Iterator<PlayerArea> pas = playerAreas.values().iterator();
 		this.container = Layouts.border(0, 10)
 				.center(gridUi.inScroll())
-				.south(Layouts.border(10, 0)
-						.west(pas.next().getUi())
-						.center(controlPanel.layout())
-						.east(pas.next().getUi()))
+				.south(playerAreaContainer.layout(controlPanel))
 				.container();
 		return this.container;
 	}
@@ -137,6 +140,7 @@ public final class GameBoard {
 				}
 			}
 			gridUi.allCardUis().forEach(c -> c.setSelected(false));
+			playerAreaContainer.switchToPlayer(player);
 		}
 
 		@Override
@@ -166,6 +170,69 @@ public final class GameBoard {
 				assert result.isTie();
 				JOptionPane.showMessageDialog(container, "It's a tie :-/", "Game Over!", JOptionPane.INFORMATION_MESSAGE);
 			}
+		}
+	}
+	
+	
+	private static interface PlayerAreaContainer {
+		
+		public JComponent layout(ControlPanel controlPanel);
+		
+		public void switchToPlayer(Player p);
+		
+	}
+	
+	
+	private static class SideBySideTwoPlayersContainer implements PlayerAreaContainer {
+
+		private final ImmutableList<PlayerArea> playerAreas;
+		
+		public SideBySideTwoPlayersContainer(Collection<PlayerArea> playerAreas) {
+			checkArgument(playerAreas.size() == 2);
+			this.playerAreas = ImmutableList.copyOf(playerAreas);
+		}
+		
+		@Override
+		public JComponent layout(ControlPanel controlPanel) {
+			return Layouts.border(10, 0)
+					.west(playerAreas.get(0).getUi())
+					.center(controlPanel.layout())
+					.east(playerAreas.get(1).getUi())
+					.container();
+		}
+
+		@Override
+		public void switchToPlayer(Player p) {
+			// nothing to do
+		}
+		
+	}
+	
+	
+	
+	private static class PlayerAreaTabs implements PlayerAreaContainer {
+		
+		private final JTabbedPane tabs = new JTabbedPane();
+		
+		private final ImmutableList<Player> players;
+		
+		public PlayerAreaTabs(Collection<PlayerArea> playerAreas) {
+			this.players = ImmutableList.copyOf(playerAreas.stream().map(PlayerArea::getPlayer).collect(toList()));
+			playerAreas.forEach(pa -> tabs.add(pa.getPlayer().getName(), pa.getUi()));
+		}
+
+		@Override
+		public JComponent layout(ControlPanel controlPanel) {
+			return Layouts.border().withHGap(10)
+					.center(tabs)
+					.east(controlPanel.layout())
+					.container();
+		}
+
+		@Override
+		public void switchToPlayer(Player p) {
+			int index = players.indexOf(p);
+			tabs.setSelectedIndex(index);
 		}
 	}
 	

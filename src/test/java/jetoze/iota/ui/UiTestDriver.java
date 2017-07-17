@@ -1,6 +1,7 @@
 package jetoze.iota.ui;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -25,17 +26,17 @@ public final class UiTestDriver {
 		EventQueue.invokeLater(driver::publish);
 	}
 	
-	private final Player player1 = new Player("John");
-	
-	private final Player player2 = new Player("Alice");
-	
 	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
 		gridUi.setGameBoard(true);
-		GameState gameState = new GameState(Arrays.asList(player1, player2), smallDeck(9));
+		List<Player> players = Arrays.asList(
+				new Player("John"), new Player("Alice"), new Player("Tarzan"));
+		GameState gameState = new GameState(players);
 		ControlPanel controlPanel = new ControlPanel(gameState);
-		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, Arrays.asList(
-				new PlayerArea(player1), new PlayerArea(player2)));
+		List<PlayerArea> playerAreas = players.stream()
+				.map(PlayerArea::new)
+				.collect(toList());
+		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, playerAreas);
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(gameBoard.layout(), BorderLayout.CENTER);
