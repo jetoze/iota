@@ -49,7 +49,7 @@ public final class GameState {
 	}
 	
 	public GameState(List<Player> players, Deck deck) {
-		checkState(players.size() >= 2, "Must have at least two players");
+		checkState(players.size() >= 2 && players.size() <= Constants.MAX_NUMBER_OF_PLAYERS);
 		this.players = ImmutableList.copyOf(players);
 		this.deck = checkNotNull(deck);
 	}
@@ -211,7 +211,7 @@ public final class GameState {
 	 */
 	public List<Player> getStandings() {
 		return players.stream()
-				.sorted(Comparator.comparing(Player::getPoints).reversed())
+				.sorted(Comparator.comparing(Player::getPoints).reversed().thenComparing(Player::getName))
 				.collect(toList());
 	}
 	
@@ -238,11 +238,17 @@ public final class GameState {
 	}
 	
 	public Player getActivePlayer() {
-		return playerInTurn;
+		return (playerInTurn != null) // Will be null before the game has started
+				? playerInTurn
+				: players.get(0);
 	}
 	
 	public ImmutableList<Player> getPlayers() {
 		return players;
+	}
+	
+	public int getNumberOfPlayers() {
+		return players.size();
 	}
 	
 	public Deck getDeck() {

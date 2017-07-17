@@ -33,10 +33,11 @@ public final class UiTestDriver {
 				new Player("John"), new Player("Alice"), new Player("Tarzan"));
 		GameState gameState = new GameState(players);
 		ControlPanel controlPanel = new ControlPanel(gameState);
+		LeaderBoard leaderBoard = new LeaderBoard(gameState);
 		List<PlayerArea> playerAreas = players.stream()
 				.map(PlayerArea::new)
 				.collect(toList());
-		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, playerAreas);
+		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, leaderBoard, playerAreas);
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(gameBoard.layout(), BorderLayout.CENTER);

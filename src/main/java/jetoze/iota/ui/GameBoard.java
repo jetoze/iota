@@ -34,6 +34,8 @@ public final class GameBoard {
 	
 	private final ControlPanel controlPanel;
 	
+	private final LeaderBoard leaderBoard;
+	
 	private final LinkedHashMap<Player, PlayerArea> playerAreas = new LinkedHashMap<>();
 	
 	private final PlayerAreaContainer playerAreaContainer;
@@ -46,10 +48,15 @@ public final class GameBoard {
 	
 	private JComponent container;
 	
-	public GameBoard(GameState gameState, GridUi gridUi, ControlPanel controlPanel, List<PlayerArea> playerAreas) {
+	public GameBoard(GameState gameState, 
+					 GridUi gridUi, 
+					 ControlPanel controlPanel, 
+					 LeaderBoard leaderBoard, 
+					 List<PlayerArea> playerAreas) {
 		this.gameState = checkNotNull(gameState);
 		this.gridUi = checkNotNull(gridUi);
 		this.controlPanel = checkNotNull(controlPanel);
+		this.leaderBoard = checkNotNull(leaderBoard);
 		checkArgument(playerAreas.size() >= 2, "Requires at least two players");
 		this.playerAreaContainer = playerAreas.size() == 2
 				? new SideBySideTwoPlayersContainer(playerAreas)
@@ -66,7 +73,7 @@ public final class GameBoard {
 	public JComponent layout() {
 		this.container = Layouts.border(0, 10)
 				.center(gridUi.inScroll())
-				.south(playerAreaContainer.layout(controlPanel))
+				.south(playerAreaContainer.layout(controlPanel, leaderBoard))
 				.container();
 		return this.container;
 	}
@@ -176,7 +183,7 @@ public final class GameBoard {
 	
 	private static interface PlayerAreaContainer {
 		
-		public JComponent layout(ControlPanel controlPanel);
+		public JComponent layout(ControlPanel controlPanel, LeaderBoard leaderBoard);
 		
 		public void switchToPlayer(Player p);
 		
@@ -193,7 +200,8 @@ public final class GameBoard {
 		}
 		
 		@Override
-		public JComponent layout(ControlPanel controlPanel) {
+		public JComponent layout(ControlPanel controlPanel, LeaderBoard leaderBoard) {
+			// We don't bother displaying the leader board in this mode.
 			return Layouts.border(10, 0)
 					.west(playerAreas.get(0).getUi())
 					.center(controlPanel.layout())
@@ -222,10 +230,12 @@ public final class GameBoard {
 		}
 
 		@Override
-		public JComponent layout(ControlPanel controlPanel) {
-			return Layouts.border().withHGap(10)
+		public JComponent layout(ControlPanel controlPanel, LeaderBoard leaderBoard) {
+			return Layouts.border()
+					.withHGap(10)
+					.withBorder(Borders.empty(0, 12, 0, 12))
 					.center(tabs)
-					.east(controlPanel.layout())
+					.east(Layouts.grid(1, 2).withHGap(16).addAll(controlPanel.layout(), leaderBoard.getUi()))
 					.container();
 		}
 
