@@ -73,6 +73,10 @@ public final class GameBoard {
 		gameState.removeObserver(gameStateObserver);
 		playerAreas.values().forEach(a -> a.removeCardListener(activePlayerAreaListener));
 	}
+	
+	private void doGameOverCleanup() {
+		dispose();
+	}
 
 	
 	private class ActivePlayerAreaListener implements GridUiListener {
@@ -149,6 +153,11 @@ public final class GameBoard {
 		
 		@Override
 		public void gameOver(GameResult result) {
+			presentGameResult(result);
+			doGameOverCleanup();
+		}
+
+		private void presentGameResult(GameResult result) {
 			if (result.isWin()) {
 				Player winner = result.getWinner();
 				String message = String.format("Winner, with %d points: %s! :-D", winner.getPoints(), winner.getName());

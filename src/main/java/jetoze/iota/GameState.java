@@ -220,7 +220,7 @@ public final class GameState {
 	 * Optional if the game is still going.
 	 */
 	public Optional<GameResult> getGameResult() {
-		return Optional.of(gameResult);
+		return Optional.ofNullable(gameResult);
 	}
 
 	public void addObserver(GameStateObserver o) {
