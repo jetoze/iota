@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +24,7 @@ public final class GameState {
 	
 	private final ImmutableList<Player> players;
 	
-	private final Deck deck = Deck.shuffled();
+	private final Deck deck;
 	
 	private final Grid grid = new Grid();
 	
@@ -41,8 +42,13 @@ public final class GameState {
 	}
 	
 	public GameState(List<Player> players) {
+		this(players, Deck.shuffled());
+	}
+	
+	public GameState(List<Player> players, Deck deck) {
 		checkState(players.size() >= 2, "Must have at least two players");
 		this.players = ImmutableList.copyOf(players);
+		this.deck = checkNotNull(deck);
 	}
 
 	public void start() {
@@ -78,6 +84,7 @@ public final class GameState {
 		Result result = action.invoke(playerInTurn, grid, deck);
 		if (result.isSuccess()) {
 			switchPlayer();
+			getGameResult().ifPresent(r -> observers.forEach(o -> o.gameOver(r)));
 		}
 		return result;
 	}
@@ -167,8 +174,46 @@ public final class GameState {
 		this.placedCards.clear();
 	}
 	
+	/**
+	 * Checks if the game is over.
+	 */
 	public boolean isGameOver() {
 		return deck.isEmpty() && players.stream().anyMatch(Player::noCardsLeft);
+	}
+	
+	/**
+	 * Returns the winning player, or Optional.empty() if it is a tie.
+	 */
+	public Optional<Player> getWinningPlayer() {
+		List<Player> standings = getStandings();
+		assert standings.size() >= 2;
+		return (standings.get(0).getPoints() > standings.get(1).getPoints())
+				? Optional.of(standings.get(0))
+				: Optional.empty();
+	}
+	
+	/**
+	 * Returns the list of players sorted according to points, in descending order.
+	 */
+	public List<Player> getStandings() {
+		return players.stream()
+				.sorted(Comparator.comparing(Player::getPoints).reversed())
+				.collect(toList());
+	}
+	
+	/**
+	 * Returns the result of the game, if the game is over. Returns an empty
+	 * Optional if the game is still going.
+	 */
+	public Optional<GameResult> getGameResult() {
+		if (!isGameOver()) {
+			return Optional.empty();
+		}
+		Player winner = getWinningPlayer().orElse(null);
+		GameResult result = (winner != null)
+				? GameResult.wonBy(winner)
+				: GameResult.tie();
+		return Optional.of(result);
 	}
 
 	public void addObserver(GameStateObserver o) {

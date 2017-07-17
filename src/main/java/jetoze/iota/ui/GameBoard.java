@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 
 import com.google.common.collect.ImmutableList;
 
 import jetoze.iota.Card;
+import jetoze.iota.GameResult;
 import jetoze.iota.GameState;
 import jetoze.iota.GameStateObserver;
 import jetoze.iota.Player;
@@ -38,6 +40,8 @@ public final class GameBoard {
 	
 	private final GridListener gridListener = new GridListener();
 	
+	private JComponent container;
+	
 	public GameBoard(GameState gameState, GridUi gridUi, ControlPanel controlPanel, List<PlayerArea> playerAreas) {
 		this.gameState = checkNotNull(gameState);
 		this.gridUi = checkNotNull(gridUi);
@@ -54,13 +58,14 @@ public final class GameBoard {
 	public JComponent layout() {
 		checkState(playerAreas.size() == 2, "Only two players supported at the moment.");
 		Iterator<PlayerArea> pas = playerAreas.values().iterator();
-		return Layouts.border(0, 10)
+		this.container = Layouts.border(0, 10)
 				.center(gridUi.inScroll())
 				.south(Layouts.border(10, 0)
 						.west(pas.next().getUi())
 						.center(controlPanel.layout())
 						.east(pas.next().getUi()))
 				.container();
+		return this.container;
 	}
 	
 	public void dispose() {
@@ -140,6 +145,18 @@ public final class GameBoard {
 		@Override
 		public void cardWasRemovedFromBoard(Card card, Position positionOnBoard, int value) {
 			gridUi.removeCard(card);
+		}
+		
+		@Override
+		public void gameOver(GameResult result) {
+			if (result.isWin()) {
+				Player winner = result.getWinner();
+				String message = String.format("Winner, with %d points: %s! :-D", winner.getPoints(), winner.getName());
+				JOptionPane.showMessageDialog(container, message, "Game Over!", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				assert result.isTie();
+				JOptionPane.showMessageDialog(container, "It's a tie :-/", "Game Over!", JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 	}
 	

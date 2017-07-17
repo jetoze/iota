@@ -1,11 +1,23 @@
 package jetoze.iota.ui;
 
+import static jetoze.iota.Card.newCard;
+import static jetoze.iota.Constants.Color.BLUE;
+import static jetoze.iota.Constants.Color.GREEN;
+import static jetoze.iota.Constants.Color.RED;
+import static jetoze.iota.Constants.Shape.CIRCLE;
+import static jetoze.iota.Constants.Shape.CROSS;
+import static jetoze.iota.Constants.Shape.SQUARE;
+import static jetoze.iota.Constants.Shape.TRIANGLE;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 
+import jetoze.iota.Card;
+import jetoze.iota.Deck;
 import jetoze.iota.GameState;
 import jetoze.iota.Player;
 import jetoze.iota.Position;
@@ -37,4 +49,26 @@ public final class UiTestDriver {
 		gameState.start();
 	}
 
+	static Deck createSmallDeck() {
+		List<Card> cards = Arrays.asList(
+				newCard(BLUE, SQUARE, 1),
+				newCard(BLUE, CIRCLE, 2),
+				newCard(BLUE, TRIANGLE, 3),
+				newCard(BLUE, CROSS, 4),
+				newCard(GREEN, SQUARE, 1),
+				newCard(GREEN, CIRCLE, 2),
+				newCard(GREEN, TRIANGLE, 3),
+				newCard(GREEN, CROSS, 4),
+				newCard(RED, SQUARE, 1),
+				newCard(RED, CIRCLE, 2),
+				newCard(RED, TRIANGLE, 3),
+				newCard(RED, CROSS, 4),
+				Card.wildcard(),
+				Card.wildcard()
+		);
+		Deck deck = new Deck(cards);
+		deck.shuffle();
+		return deck;
+	}
+	
 }
