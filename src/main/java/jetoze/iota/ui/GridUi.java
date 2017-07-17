@@ -42,6 +42,8 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 	
 	private boolean usesAbsolutePositions = true;
 	
+	private boolean suppressEvents;
+	
 	private final List<GridUiListener> listeners = new CopyOnWriteArrayList<>();
 
 	private final MouseClickRouter mouseClickRouter = new MouseClickRouter();
@@ -170,6 +172,10 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		return true;
 	}
 	
+	public void setSuppressEvents(boolean value) {
+		this.suppressEvents = value;
+	}
+	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -217,12 +223,15 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		checkNotNull(lst);
 		this.listeners.remove(lst);
 	}
-
+	
 	
 	private class MouseClickRouter extends MouseAdapter {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
+			if (suppressEvents) {
+				return;
+			}
 			if (!SwingUtilities.isLeftMouseButton(e)) {
 				return;
 			}
@@ -234,12 +243,18 @@ public final class GridUi extends JPanel /* or should I also extend JComponent?*
 		}
 
 		private void handleClickOnCard(MouseEvent e) {
+			if (suppressEvents) {
+				return;
+			}
 			CardUi cardUi = (CardUi) e.getSource();
 			int clickCount = e.getClickCount();
 			listeners.forEach(lst -> lst.cardWasClickedOn(cardUi, clickCount));
 		}
 
 		private void handleClickOnEmptyCell(MouseEvent e) {
+			if (suppressEvents) {
+				return;
+			}
 			if (isInVicinityOfCellBorder(e)) {
 				return;
 			}

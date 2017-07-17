@@ -69,6 +69,7 @@ public final class PlayerArea {
 
 	public void showCards() {
 		this.cards.allCardUis().forEach(c -> c.setFaceUp(true));
+		this.cards.setSuppressEvents(false);
 	}
 
 	public void hideCards() {
@@ -76,6 +77,7 @@ public final class PlayerArea {
 			c.setFaceUp(false);
 			c.setSelected(false);
 		});
+		this.cards.setSuppressEvents(true);
 	}
 	
 	public void dispose() {
