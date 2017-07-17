@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import javax.swing.AbstractAction;
 
 import jetoze.iota.Card;
+import jetoze.iota.GameResult;
 import jetoze.iota.GameState;
 import jetoze.iota.GameStateObserver;
 import jetoze.iota.Position;
@@ -23,8 +24,8 @@ abstract class AbstractPlacedCardsAction extends AbstractAction {
 	}
 
 	private void updateEnabledState() {
-		boolean enabled = gameState.getNumberOfPlacedCards() > 0;
-		UiThread.run(() -> setEnabled(enabled));
+		boolean enabled = (gameState.getNumberOfPlacedCards() > 0) && !gameState.isGameOver();
+		UiThread.supply(enabled, this::setEnabled);
 	}
 	
 	protected final GameState getGameState() {
@@ -45,6 +46,11 @@ abstract class AbstractPlacedCardsAction extends AbstractAction {
 
 		@Override
 		public void cardWasRemovedFromBoard(Card card, Position positionOnBoard, int value) {
+			updateEnabledState();
+		}
+
+		@Override
+		public void gameOver(GameResult result) {
 			updateEnabledState();
 		}
 	}

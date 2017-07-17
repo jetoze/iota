@@ -58,6 +58,7 @@ public final class ControlPanel {
 		gameState.removeObserver(valueLabelUpdater);
 		playLineUiAction.dispose();
 		recallUiAction.dispose();
+		passUiAction.dispose();
 	}
 	
 	

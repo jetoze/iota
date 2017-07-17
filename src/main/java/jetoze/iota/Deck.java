@@ -8,7 +8,7 @@ import java.util.List;
 
 public final class Deck {
 
-	public static Deck shuffled() {
+	public static Deck newShuffledDeck() {
 		Deck deck = new Deck();
 		deck.shuffle();
 		return deck;

@@ -36,7 +36,7 @@ public final class UiTestDriver {
 	public void publish() {
 		GridUi gridUi = GridUi.square(UiConstants.NUMBER_OF_CELLS_PER_SIDE_IN_GRID);
 		gridUi.setGameBoard(true);
-		GameState gameState = new GameState(Arrays.asList(player1, player2));
+		GameState gameState = new GameState(Arrays.asList(player1, player2), smallDeck());
 		ControlPanel controlPanel = new ControlPanel(gameState);
 		GameBoard gameBoard = new GameBoard(gameState, gridUi, controlPanel, Arrays.asList(
 				new PlayerArea(player1), new PlayerArea(player2)));
@@ -49,7 +49,7 @@ public final class UiTestDriver {
 		gameState.start();
 	}
 
-	static Deck createSmallDeck() {
+	static Deck smallDeck() {
 		List<Card> cards = Arrays.asList(
 				newCard(BLUE, SQUARE, 1),
 				newCard(BLUE, CIRCLE, 2),

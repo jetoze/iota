@@ -37,12 +37,15 @@ public final class GameState {
 	
 	private final List<GameStateObserver> observers = new CopyOnWriteArrayList<>();
 	
+	@Nullable
+	private GameResult gameResult;
+	
 	public GameState() {
 		this(ImmutableList.of(new Player("Alice"), new Player("John")));
 	}
 	
 	public GameState(List<Player> players) {
-		this(players, Deck.shuffled());
+		this(players, Deck.newShuffledDeck());
 	}
 	
 	public GameState(List<Player> players, Deck deck) {
@@ -172,13 +175,24 @@ public final class GameState {
 		// cards to exchange.
 		setSelectedPlayerCard(null);
 		this.placedCards.clear();
+		checkGameOver();
+	}
+
+	private void checkGameOver() {
+		boolean gameOver = deck.isEmpty() && players.stream().anyMatch(Player::noCardsLeft);
+		if (gameOver) {
+			Player winner = getWinningPlayer().orElse(null);
+			this.gameResult = (winner != null)
+					? GameResult.wonBy(winner)
+					: GameResult.tie();
+		}
 	}
 	
 	/**
 	 * Checks if the game is over.
 	 */
 	public boolean isGameOver() {
-		return deck.isEmpty() && players.stream().anyMatch(Player::noCardsLeft);
+		return this.gameResult != null;
 	}
 	
 	/**
@@ -206,14 +220,7 @@ public final class GameState {
 	 * Optional if the game is still going.
 	 */
 	public Optional<GameResult> getGameResult() {
-		if (!isGameOver()) {
-			return Optional.empty();
-		}
-		Player winner = getWinningPlayer().orElse(null);
-		GameResult result = (winner != null)
-				? GameResult.wonBy(winner)
-				: GameResult.tie();
-		return Optional.of(result);
+		return Optional.of(gameResult);
 	}
 
 	public void addObserver(GameStateObserver o) {
