@@ -93,7 +93,11 @@ public final class GameState {
 	}
 	
 	public void setSelectedPlayerCard(@Nullable Card card) {
+		boolean changed = card != this.selectedPlayerCard;
 		this.selectedPlayerCard = card;
+		if (changed) {
+			observers.forEach(o -> o.selectedPlayerCardChanged(card));
+		}
 	}
 	
 	public Optional<Card> getSelectedPlayerCard() {

@@ -44,6 +44,8 @@ public final class UiTestDriver {
 		frame.setSize(1000, 1000);
 		frame.setVisible(true);
 		gridUi.scrollToVisible(new Position(0, 0), new Position(8, 8));
+		UiMediator uiMediator = new UiMediator(gameState, gameBoard);
+		uiMediator.install();
 		gameState.start();
 	}
 
