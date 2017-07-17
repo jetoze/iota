@@ -28,7 +28,7 @@ public final class LeaderBoard {
 		this.container = Layouts.grid(gameState.getNumberOfPlayers(), 2)
 				.withHGap(16)
 				.withVGap(12)
-				.withBorder(Borders.titled("Leader Board"))
+				.withBorder(Borders.empty(4))
 				.container();
 		update(gameState.getActivePlayer());
 	}
@@ -45,7 +45,10 @@ public final class LeaderBoard {
 	}
 
 	public JComponent getUi() {
-		return container;
+		return Layouts.border()
+				.withBorder(Borders.titled("Leader Board"))
+				.north(container)
+				.container();
 	}
 	
 	public void dispose() {
