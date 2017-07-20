@@ -46,6 +46,10 @@ public class Player {
 	public int getPoints() {
 		return points;
 	}
+	
+	public ImmutableList<Integer> getPointsPerTurn() {
+		return ImmutableList.copyOf(pointsPerTurn);
+	}
 
 	public void giveCard(Card card) {
 		checkNotNull(card);
