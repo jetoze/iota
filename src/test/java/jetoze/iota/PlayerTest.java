@@ -25,11 +25,11 @@ public final class PlayerTest {
 	@Test
 	public void addPoints() {
 		Player p = new Player("Beth");
-		p.addPoints(4);
+		p.completeTurn(4);
 		assertEquals(4, p.getPoints());
 		PlayerObserver o = mock(PlayerObserver.class);
 		p.addObserver(o);
-		p.addPoints(6);
+		p.completeTurn(6);
 		assertEquals(10, p.getPoints());
 		verify(o).pointsChanged(p, 10);
 	}

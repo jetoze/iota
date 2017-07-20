@@ -21,6 +21,7 @@ public final class PassAction implements GameAction {
 		if (deck.cardsLeft() < this.cardsToTrade.size()) {
 			return Result.failed("There are not enough cards left in the deck.");
 		}
+		player.completeTurn(0);
 		this.cardsToTrade.forEach(c -> changeCard(c, player, deck));
 		return Result.SUCCESS;
 	}

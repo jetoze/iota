@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -18,6 +19,8 @@ public class Player {
 	private final String name;
 	
 	private int points;
+
+	private final List<Integer> pointsPerTurn = new ArrayList<>();
 	
 	private final Card[] cards = new Card[Constants.NUMBER_OF_CARDS_PER_PLAYER];
 	
@@ -31,10 +34,13 @@ public class Player {
 		return name;
 	}
 	
-	public void addPoints(int points) {
-		checkArgument(points > 0);
+	public void completeTurn(int points) {
+		checkArgument(points >= 0); // points == 0 when passing
+		this.pointsPerTurn.add(points);
 		this.points += points;
-		this.observers.forEach(o -> o.pointsChanged(Player.this, Player.this.points));
+		if (points > 0) {
+			this.observers.forEach(o -> o.pointsChanged(Player.this, Player.this.points));
+		}
 	}
 	
 	public int getPoints() {

@@ -19,7 +19,7 @@ public final class PlayLineAction implements GameAction {
 			while (player.needsCards() && !deck.isEmpty()) {
 				player.giveCard(deck.next());
 			}
-			player.addPoints(points);
+			player.completeTurn(points);
 			return Result.SUCCESS;
 		} catch (InvalidLineException e) {
 			return Result.failed("Not a valid line.");
